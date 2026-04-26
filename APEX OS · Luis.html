@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="APEX OS">
+<title>APEX OS · Luis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@400;500&family=Geist:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#09090f;--s1:#111119;--s2:#18181f;--s3:#1f1f28;
+  --b0:rgba(255,255,255,0.05);--b1:rgba(255,255,255,0.09);--b2:rgba(255,255,255,0.16);
+  --t0:#ededea;--t1:rgba(237,237,234,0.55);--t2:rgba(237,237,234,0.3);
+  --g:#7ef5c0;--p:#b8a8ff;--o:#ffb36e;--r:#ff6b6b;--b:#6eb5ff;--y:#f0d080;--pk:#ff85b3;
+  --fd:'Instrument Serif',serif;--fu:'Geist',sans-serif;--fm:'Geist Mono',monospace;
+  --nav-h:52px;--bot-h:60px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t0);font-family:var(--fu);font-size:14px;line-height:1.5}
+
+/* ─── SHELL ─── */
+.shell{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{height:var(--nav-h);flex-shrink:0;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--b0);background:var(--bg);gap:12px;position:relative;z-index:100}
+.logo{font-family:var(--fd);font-size:18px;display:flex;align-items:center;gap:7px;flex-shrink:0}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--g);animation:glow 2.5s ease-in-out infinite}
+@keyframes glow{0%,100%{opacity:1}50%{opacity:.35}}
+.topbar-center{flex:1;display:flex;justify-content:center}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.trainer-btn{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:5px 11px;border-radius:8px;border:1px solid rgba(126,245,192,.22);color:var(--g);background:rgba(126,245,192,.05);text-decoration:none;white-space:nowrap}
+
+.scroller{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--bot-h) + 16px)}
+.page{display:none;padding:20px 16px;min-height:100%}
+.page.on{display:block}
+
+/* ─── BOTTOM NAV ─── */
+.botnav{height:var(--bot-h);flex-shrink:0;display:flex;align-items:center;border-top:1px solid var(--b0);background:var(--bg);padding:0 4px;padding-bottom:env(safe-area-inset-bottom)}
+.bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:transparent;color:var(--t2);cursor:pointer;padding:6px 2px;border-radius:10px;transition:all .15s;font-family:var(--fu)}
+.bn.on{color:var(--p)}
+.bn-icon{font-size:18px;line-height:1}
+.bn-label{font-size:9px;font-weight:500;letter-spacing:.02em}
+
+/* ─── TYPOGRAPHY ─── */
+.h1{font-family:var(--fd);font-size:22px;font-weight:400;margin-bottom:2px}
+.sub{font-size:11px;color:var(--t1);font-family:var(--fm);margin-bottom:16px;letter-spacing:.02em}
+
+/* ─── CARDS ─── */
+.card{background:var(--s1);border:1px solid var(--b0);border-radius:14px;padding:14px;margin-bottom:12px}
+.card-hd{display:flex;align-items:center;justify-content:space-between;font-size:10px;font-family:var(--fm);letter-spacing:.07em;color:var(--t2);text-transform:uppercase;margin-bottom:11px}
+.card-act{color:var(--p);font-size:10px;cursor:pointer;font-family:var(--fu);font-weight:500;letter-spacing:0;text-transform:none;background:none;border:none;padding:0}
+.mcard{background:var(--s2);border-radius:11px;padding:13px}
+.mlabel{font-size:10px;font-family:var(--fm);color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.mval{font-family:var(--fd);font-size:26px;line-height:1;margin-bottom:3px}
+.msub{font-size:11px;color:var(--t1)}
+.mbar{height:2px;background:var(--b0);border-radius:1px;overflow:hidden;margin-top:8px}
+.mfill{height:100%;border-radius:1px;transition:width .8s ease}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+
+/* ─── PILL ─── */
+.pill{display:inline-flex;align-items:center;font-size:9px;font-family:var(--fm);padding:2px 8px;border-radius:100px;letter-spacing:.04em}
+
+/* ─── INSIGHT ─── */
+.insight{background:rgba(184,168,255,.05);border:1px solid rgba(184,168,255,.1);border-radius:10px;padding:10px 13px;font-size:12px;color:var(--t1);margin-bottom:12px;line-height:1.65}
+.insight b{color:var(--p);font-weight:500}
+
+/* ─── TABS ─── */
+.tabs{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{font-size:11px;font-weight:500;padding:6px 14px;border-radius:8px;border:1px solid var(--b0);background:transparent;color:var(--t1);cursor:pointer;font-family:var(--fu);white-space:nowrap;flex-shrink:0;transition:all .15s}
+.tab.on{border-color:var(--b1);color:var(--t0);background:var(--s2)}
+.tsec{display:none}.tsec.on{display:block}
+
+/* ─── TIMELINE ─── */
+.tl{display:flex;flex-direction:column}
+.te{display:flex;align-items:stretch;min-height:42px}
+.tlbl{font-family:var(--fm);font-size:9px;color:var(--t2);width:34px;min-width:34px;padding-top:2px}
+.tbar{width:1px;background:var(--b1);margin:0 10px;position:relative;flex-shrink:0}
+.tdot{position:absolute;top:3px;left:-3px;width:7px;height:7px;border-radius:50%;border:1px solid var(--s1)}
+.tbody{flex:1;padding:2px 0 12px}
+.tev{border-radius:8px;padding:7px 10px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:7px;margin-bottom:3px}
+.ted{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.now-p{font-size:9px;font-family:var(--fm);color:var(--g);background:rgba(126,245,192,.1);border:1px solid rgba(126,245,192,.2);padding:1px 6px;border-radius:100px}
+
+/* ─── TODO ─── */
+.tlist{display:flex;flex-direction:column;gap:6px}
+.titem{display:flex;align-items:center;gap:9px;padding:9px 11px;background:rgba(255,255,255,.025);border:1px solid var(--b0);border-radius:10px;cursor:pointer;transition:all .13s;-webkit-user-select:none;user-select:none}
+.titem.done .ttext{text-decoration:line-through;opacity:.38}
+.titem.done .tcheck{background:var(--g);border-color:var(--g)}
+.titem.done .tcheck::after{content:'✓';font-size:8px;color:#09090f;font-weight:700;display:flex;align-items:center;justify-content:center}
+.tcheck{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--b2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .18s}
+.ttext{flex:1;font-size:13px}
+
+/* ─── HABITS ─── */
+.hrow{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--b0)}
+.hrow:last-child{border-bottom:none}
+.hname{font-size:13px;flex:1;font-weight:500}
+.hstrk{font-family:var(--fm);font-size:10px;color:var(--t2);min-width:24px}
+.hdays{display:flex;gap:3px}
+.hd{width:24px;height:24px;border-radius:6px;border:1px solid var(--b1);cursor:pointer;font-size:9px;font-family:var(--fm);color:var(--t2);display:flex;align-items:center;justify-content:center;transition:all .13s;-webkit-user-select:none;user-select:none}
+.hd.on{border-color:transparent}
+
+/* ─── AI PANEL ─── */
+.aipanel{background:var(--s1);border:1px solid var(--b0);border-radius:14px;display:flex;flex-direction:column;margin-bottom:12px}
+.aihdr{padding:12px 14px;border-bottom:1px solid var(--b0);display:flex;align-items:center;gap:8px}
+.aidot{width:6px;height:6px;border-radius:50%;background:var(--g);box-shadow:0 0 6px var(--g);animation:glow 1.5s infinite}
+.ainame{font-size:12px;font-weight:500}
+.aimeta{font-family:var(--fm);font-size:10px;color:var(--t2);margin-left:auto}
+.aimsgs{padding:12px;display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.amsg{padding:9px 12px;border-radius:10px;font-size:12px;line-height:1.6;max-width:92%;animation:up .25s ease}
+@keyframes up{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.amsg.bot{background:rgba(184,168,255,.07);border:1px solid rgba(184,168,255,.12);align-self:flex-start}
+.amsg.usr{background:rgba(255,255,255,.04);border:1px solid var(--b0);align-self:flex-end;color:var(--t1)}
+.dots span{display:inline-block;animation:blink 1.1s infinite;font-size:14px}
+.dots span:nth-child(2){animation-delay:.18s}.dots span:nth-child(3){animation-delay:.36s}
+@keyframes blink{0%,80%,100%{opacity:.15}40%{opacity:1}}
+.aibar{padding:10px 12px;border-top:1px solid var(--b0);display:flex;gap:7px;align-items:center}
+.aiinp{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--b0);border-radius:8px;padding:8px 11px;color:var(--t0);font-family:var(--fu);font-size:14px;outline:none}
+.aiinp::placeholder{color:var(--t2)}
+.aisend{width:34px;height:34px;background:var(--p);border:none;border-radius:8px;cursor:pointer;font-size:14px;color:#09090f;font-weight:700;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.aisend:disabled{opacity:.3}
+.qa{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.qb{font-size:11px;font-weight:500;padding:6px 13px;border-radius:100px;border:1px solid var(--b1);background:transparent;color:var(--t1);cursor:pointer;font-family:var(--fu);white-space:nowrap;transition:all .13s}
+.qb:active{background:rgba(184,168,255,.08);color:var(--p)}
+
+/* ─── EXAM PLAN ─── */
+.day-block{border-radius:12px;padding:12px 14px;margin-bottom:8px;border:1px solid var(--b0);background:var(--s1)}
+.day-block.exam{background:rgba(255,107,107,.04);border-color:rgba(255,107,107,.2)}
+.day-block.deadline{background:rgba(255,179,110,.04);border-color:rgba(255,179,110,.2)}
+.day-block.today-block{border-color:rgba(184,168,255,.3);background:rgba(184,168,255,.04)}
+.day-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.day-date{font-family:var(--fm);font-size:10px;color:var(--t2);flex-shrink:0}
+.day-label{font-size:12px;font-weight:500;flex:1}
+.day-badge{font-size:9px;font-family:var(--fm);padding:2px 8px;border-radius:100px;flex-shrink:0}
+.dtask{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t1);padding:7px 9px;background:rgba(255,255,255,.025);border-radius:7px;cursor:pointer;border:1px solid transparent;margin-bottom:5px;-webkit-user-select:none;user-select:none}
+.dtask.done{text-decoration:line-through;opacity:.38}
+.dtask.done .dtcheck{background:var(--g);border-color:var(--g)}
+.dtask.done .dtcheck::after{content:'✓';font-size:7px;color:#09090f;font-weight:700}
+.dtcheck{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--b2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .18s}
+.subj-tag{font-size:9px;font-family:var(--fm);padding:1px 7px;border-radius:100px;margin-left:auto;flex-shrink:0}
+
+/* ─── RA ROWS ─── */
+.ra-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b0)}
+.ra-row:last-child{border-bottom:none}
+.ra-num{font-family:var(--fm);font-size:10px;color:var(--t2);min-width:26px;flex-shrink:0}
+.ra-info{flex:1}
+.ra-name{font-size:12px;font-weight:500;margin-bottom:2px}
+.ra-tema{font-size:10px;color:var(--t2);font-family:var(--fm)}
+.ra-controls{display:flex;align-items:center;gap:6px}
+.ra-pct{font-family:var(--fm);font-size:10px;color:var(--t2);min-width:28px;text-align:right}
+.ra-check{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--b2);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .18s;-webkit-user-select:none;user-select:none}
+.ra-check.on{background:var(--g);border-color:var(--g)}
+.ra-check.on::after{content:'✓';font-size:10px;color:#09090f;font-weight:700}
+
+/* ─── OBJECTIVES ─── */
+.obj-card{background:var(--s2);border:1px solid var(--b0);border-radius:12px;padding:13px;margin-bottom:8px}
+.obj-name{font-size:13px;font-weight:500;margin-bottom:2px}
+.obj-date{font-size:10px;font-family:var(--fm);color:var(--t2);margin-bottom:8px}
+.obj-bar{height:4px;background:var(--b0);border-radius:2px;overflow:hidden;margin-bottom:6px}
+.obj-fill{height:100%;border-radius:2px;transition:width .5s ease}
+.obj-foot{display:flex;align-items:center;gap:8px}
+.obj-pct{font-family:var(--fm);font-size:11px;color:var(--t1);min-width:28px}
+input[type=range]{flex:1;accent-color:var(--p);height:4px}
+
+/* ─── CEO HABITS ─── */
+.ceo-item{background:var(--s2);border:1px solid var(--b0);border-radius:12px;padding:13px;margin-bottom:8px}
+.ceo-who{font-size:9px;font-family:var(--fm);color:var(--t2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.ceo-quote{font-family:var(--fd);font-size:13px;font-style:italic;color:var(--t0);margin-bottom:6px;line-height:1.45}
+.ceo-task-txt{font-size:11px;color:var(--t1);line-height:1.55;margin-bottom:8px}
+
+/* ─── LINKS ─── */
+.lcard{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--s2);border:1px solid var(--b0);border-radius:10px;margin-bottom:6px;text-decoration:none;-webkit-user-select:none;user-select:none}
+.lcard:active{background:var(--s3)}
+.lico{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.lname{font-size:12px;font-weight:500;color:var(--t0)}
+.ldesc{font-size:10px;color:var(--t2)}
+.larr{margin-left:auto;color:var(--t2);font-size:12px}
+
+/* ─── FINANCE ─── */
+.fin-goal{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--b0)}
+.fin-goal:last-child{border-bottom:none}
+.fg-left{flex:1}
+.fg-name{font-size:12px;font-weight:500}
+.fg-sub{font-size:10px;color:var(--t2)}
+.fg-bar{width:80px;height:4px;background:var(--b0);border-radius:2px;overflow:hidden;flex-shrink:0}
+.fg-fill{height:100%;border-radius:2px}
+.fg-pct{font-family:var(--fm);font-size:10px;color:var(--t1);min-width:28px;text-align:right}
+
+/* ─── ENG ─── */
+.eng-phrase{background:var(--s2);border-radius:10px;padding:14px;margin-bottom:10px}
+.eng-p{font-size:15px;font-weight:500;margin-bottom:5px;line-height:1.4}
+.eng-ph{font-family:var(--fm);font-size:11px;color:var(--p);margin-bottom:4px}
+.eng-tr{font-size:11px;color:var(--t1)}
+.eng-opts{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.eng-opt{text-align:left;padding:9px 12px;border-radius:8px;border:1px solid var(--b1);background:transparent;color:var(--t1);font-family:var(--fu);font-size:12px;cursor:pointer;transition:all .15s}
+
+/* ─── PERSONAL ─── */
+.quote-card{background:var(--s2);border-radius:14px;padding:22px;margin-bottom:14px;text-align:center}
+.big-quote{font-family:var(--fd);font-size:17px;font-style:italic;line-height:1.55;color:var(--t0);margin-bottom:10px}
+.q-author{font-size:10px;font-family:var(--fm);color:var(--t2);letter-spacing:.07em}
+.qnav{display:flex;justify-content:center;gap:8px;margin-top:14px}
+.qbtn{background:transparent;border:1px solid var(--b1);color:var(--t1);font-size:14px;width:32px;height:32px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+.aff{background:rgba(184,168,255,.06);border:1px solid rgba(184,168,255,.12);border-radius:12px;padding:14px;margin-bottom:8px;text-align:center}
+.aff-t{font-family:var(--fd);font-size:15px;font-style:italic;color:var(--t0);margin-bottom:4px;line-height:1.5}
+.aff-s{font-size:10px;color:var(--t1);font-family:var(--fm)}
+
+.founder{background:var(--s2);border:1px solid var(--b0);border-radius:11px;padding:13px;margin-bottom:8px}
+.founder-hd{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.founder-av{width:32px;height:32px;border-radius:8px;background:rgba(184,168,255,.12);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:14px;color:var(--p);flex-shrink:0}
+.founder-name{font-size:12px;font-weight:500}
+.founder-role{font-size:10px;color:var(--t2)}
+.founder-fact{font-size:12px;color:var(--t1);margin-bottom:4px}
+.founder-why{font-size:11px;color:var(--t2);font-style:italic}
+
+/* ─── AGENDA ─── */
+.ag-ev{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--b0)}
+.ag-ev:last-child{border-bottom:none}
+.ag-time{font-family:var(--fm);font-size:10px;color:var(--t2);min-width:48px;padding-top:2px}
+.ag-dot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.ag-title{font-size:13px;font-weight:500}
+.ag-sub{font-size:11px;color:var(--t1)}
+.reminder{font-size:9px;background:rgba(255,179,110,.1);border:1px solid rgba(255,179,110,.18);color:var(--o);padding:2px 7px;border-radius:100px;font-family:var(--fm);margin-top:3px;display:inline-block}
+
+/* ─── COUNTDOWN STRIP ─── */
+.cdown-strip{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.cd-item{background:var(--s2);border-radius:11px;padding:12px;text-align:center;border:1px solid var(--b0)}
+.cd-num{font-family:var(--fd);font-size:28px;line-height:1;margin-bottom:2px}
+.cd-label{font-size:10px;color:var(--t1);font-family:var(--fm)}
+.cd-date{font-size:9px;color:var(--t2);font-family:var(--fm);margin-top:1px}
+
+/* ─── FORM INPUTS ─── */
+.finput{background:rgba(255,255,255,.04);border:1px solid var(--b0);border-radius:8px;padding:8px 11px;color:var(--t0);font-family:var(--fu);font-size:14px;outline:none;width:100%;margin-bottom:7px}
+.finput::placeholder{color:var(--t2)}
+select.finput option{background:#1a1a24}
+
+/* ─── WEEK GRID ─── */
+.wgrid{background:var(--s1);border:1px solid var(--b0);border-radius:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:12px}
+.wgrid-inner{min-width:520px}
+.wrow{display:grid;grid-template-columns:44px repeat(7,1fr)}
+.whead{padding:7px 3px;text-align:center;font-size:9px;font-family:var(--fm);border-bottom:1px solid var(--b0);border-left:1px solid var(--b0);color:var(--t2);letter-spacing:.05em;background:rgba(255,255,255,.015)}
+.wtime{padding:5px 7px;font-size:9px;font-family:var(--fm);color:var(--t2);border-bottom:1px solid var(--b0);display:flex;align-items:center}
+.wcell{padding:3px;border-bottom:1px solid var(--b0);border-left:1px solid var(--b0)}
+.wblk{border-radius:4px;padding:2px 5px;font-size:9px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ─── FILTER BAR ─── */
+.fbar{display:flex;gap:5px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-bottom:12px;padding-bottom:2px}
+.fbar::-webkit-scrollbar{display:none}
+.fb{font-size:11px;font-weight:500;padding:5px 12px;border-radius:100px;border:1px solid var(--b1);background:transparent;color:var(--t1);cursor:pointer;font-family:var(--fu);white-space:nowrap;flex-shrink:0;transition:all .13s}
+.fb.on{border-color:var(--p);color:var(--p);background:rgba(184,168,255,.06)}
+
+/* ─── GYM MODAL ─── */
+.gym-modal{position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:var(--bg);display:none;flex-direction:column}
+.gym-modal.open{display:flex}
+.gym-bar{height:var(--nav-h);flex-shrink:0;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--b0);background:var(--bg);gap:12px}
+.gym-back{font-size:13px;font-weight:500;padding:6px 14px;border-radius:8px;border:1px solid var(--b1);background:transparent;color:var(--t0);cursor:pointer;font-family:var(--fu)}
+.gym-frame{flex:1;border:none;width:100%;background:var(--bg)}
+
+/* ─── ENGLISH IMPROVED ─── */
+.vocab-card{background:var(--s2);border-radius:11px;padding:14px;margin-bottom:8px;border:1px solid var(--b0)}
+.vocab-word{font-size:20px;font-weight:500;margin-bottom:3px;font-family:var(--fd)}
+.vocab-pron{font-family:var(--fm);font-size:12px;color:var(--p);margin-bottom:4px}
+.vocab-def{font-size:12px;color:var(--t1);margin-bottom:6px;line-height:1.5}
+.vocab-example{font-size:11px;color:var(--t2);font-style:italic;border-left:2px solid var(--p);padding-left:8px}
+.vocab-tags{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+
+.conv-scenario{background:var(--s2);border-radius:11px;padding:13px;margin-bottom:8px;cursor:pointer;border:1px solid var(--b0);transition:border-color .15s}
+.conv-scenario:active{border-color:var(--b1)}
+.conv-title{font-size:13px;font-weight:500;margin-bottom:3px}
+.conv-desc{font-size:11px;color:var(--t1)}
+.conv-level{font-size:9px;font-family:var(--fm);padding:2px 7px;border-radius:100px;margin-left:auto}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo"><div class="pulse"></div>APEX<span style="color:var(--t1);font-style:italic"> OS</span></div>
+  <div class="topbar-center" id="topbar-title" style="font-size:12px;color:var(--t2);font-family:var(--fm)">Hoy</div>
+  <div class="topbar-right">
+    <button class="trainer-btn" onclick="openGym()">💪 Gym</button>
+  </div>
+</div>
+
+<!-- SCROLLER -->
+<div class="scroller" id="scroller">
+
+  <!-- ══ HOY ══ -->
+  <div class="page on" id="page-hoy">
+    <div class="h1">Buenos días, Luis</div>
+    <div class="sub" id="hoy-sub">Cargando...</div>
+    <div class="cdown-strip">
+      <div class="cd-item"><div class="cd-num" style="color:var(--p)" id="cnt-pmm">--</div><div class="cd-label">Prog. Multimedia</div><div class="cd-date">Lun 25 may · 8:00h</div></div>
+      <div class="cd-item"><div class="cd-num" style="color:var(--o)" id="cnt-sge">--</div><div class="cd-label">Gestión Empresarial</div><div class="cd-date">Mar 26 may · 8:00h</div></div>
+      <div class="cd-item"><div class="cd-num" style="color:var(--g)" id="cnt-psp">--</div><div class="cd-label">Prog. Servicios</div><div class="cd-date">Vie 29 may · 8:00h</div></div>
+      <div class="cd-item" style="border-color:rgba(255,179,110,.2)"><div class="cd-num" style="color:var(--o)" id="cnt-dead">--</div><div class="cd-label">Todo listo para</div><div class="cd-date">Dom 18 may</div></div>
+    </div>
+    <div class="insight"><b>Brief CEO:</b> Trabajo 10–18. Gym hecho antes. Exámenes en <span id="dias-exam">--</span> días — modo concentración activo. Startup en junio.</div>
+    <div class="card">
+      <div class="card-hd">Top 5 hoy <span style="color:var(--t2);font-size:9px" id="hoy-fecha"></span></div>
+      <div class="tlist" id="todo-hoy"></div>
+      <button class="qb" style="margin-top:10px;width:100%" onclick="resetTodos()">↻ Nuevo día</button>
+    </div>
+    <div class="card">
+      <div class="card-hd">Hábitos · esta semana</div>
+      <div class="hrow"><div class="hname">Gym</div><div class="hstrk" id="strk-gym">0×</div><div class="hdays" id="h-gym"></div></div>
+      <div class="hrow"><div class="hname">Inglés</div><div class="hstrk" id="strk-ing">0d</div><div class="hdays" id="h-ing"></div></div>
+      <div class="hrow"><div class="hname">Lectura</div><div class="hstrk" id="strk-lec">0×</div><div class="hdays" id="h-lec"></div></div>
+      <div class="hrow" style="border:none"><div class="hname">Estudio</div><div class="hstrk" id="strk-est">0×</div><div class="hdays" id="h-est"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd">Agenda hoy</div>
+      <div class="tl" id="agenda-hoy"></div>
+    </div>
+  </div>
+
+  <!-- ══ EXÁMENES ══ -->
+  <div class="page" id="page-examenes">
+    <div class="h1">Plan de exámenes</div>
+    <div class="sub">15 RA · 3 asignaturas · Todo listo el 18 de mayo</div>
+    <div class="tabs">
+      <button class="tab on" onclick="etab('plan',this)">Plan día a día</button>
+      <button class="tab" onclick="etab('asig',this)">Asignaturas</button>
+    </div>
+    <div class="tsec on" id="et-plan">
+      <div class="fbar">
+        <button class="fb on" onclick="filterPlan('all',this)">Todo</button>
+        <button class="fb" onclick="filterPlan('PMM',this)">Multimedia</button>
+        <button class="fb" onclick="filterPlan('SGE',this)">Gestión</button>
+        <button class="fb" onclick="filterPlan('PSP',this)">Servicios</button>
+        <button class="fb" onclick="filterPlan('REPASO',this)">Repaso</button>
+      </div>
+      <div id="plan-container"></div>
+    </div>
+    <div class="tsec" id="et-asig">
+      <div class="g3">
+        <div class="mcard"><div class="mlabel">RA totales</div><div class="mval">15</div><div class="msub">5 por asignatura</div><div class="mbar"><div class="mfill" id="prog-total" style="width:0%;background:var(--p)"></div></div></div>
+        <div class="mcard"><div class="mlabel">Dominadas</div><div class="mval" id="ra-done">0</div><div class="msub">de 15</div></div>
+        <div class="mcard"><div class="mlabel">Días restantes</div><div class="mval" id="days-dead2">--</div><div class="msub">al 18 mayo</div></div>
+      </div>
+      <div class="card" style="border-color:rgba(184,168,255,.2)">
+        <div class="card-hd">Prog. Multimedia y Dispositivos Móviles <span class="pill" style="background:rgba(184,168,255,.1);color:var(--p)">25 MAY</span></div>
+        <div id="ra-pmm-list"></div>
+      </div>
+      <div class="card" style="border-color:rgba(255,179,110,.2)">
+        <div class="card-hd">Sistemas de Gestión Empresarial <span class="pill" style="background:rgba(255,179,110,.1);color:var(--o)">26 MAY</span></div>
+        <div id="ra-sge-list"></div>
+      </div>
+      <div class="card" style="border-color:rgba(126,245,192,.2)">
+        <div class="card-hd">Programación de Servicios y Procesos <span class="pill" style="background:rgba(126,245,192,.1);color:var(--g)">29 MAY</span></div>
+        <div id="ra-psp-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ EMPRESA ══ -->
+  <div class="page" id="page-empresa">
+    <div class="h1">Empresa</div>
+    <div class="sub">Startup · Patrimonio · Objetivos</div>
+    <div class="tabs">
+      <button class="tab on" onclick="emptab('startup',this)">Startup</button>
+      <button class="tab" onclick="emptab('patrimonio',this)">Patrimonio</button>
+      <button class="tab" onclick="emptab('objetivos',this)">Objetivos</button>
+    </div>
+    <div class="tsec on" id="em-startup">
+      <div class="insight"><b>Cuenta atrás:</b> <span id="startup-dias">--</span> días para modo startup · Post-exámenes · Junio 1</div>
+      <div class="card">
+        <div class="card-hd">Agencia IA · Roadmap</div>
+        <div class="tlist" id="startup-tasks"></div>
+        <button class="qb" style="margin-top:10px" onclick="askAI('Estrategia para conseguir el primer cliente de mi agencia IA en junio, siendo solo, sin inversión, en España')">✦ Estrategia IA</button>
+      </div>
+      <div class="card">
+        <div class="card-hd">Ideas en pipeline <button class="card-act" onclick="addIdea()">+ Nueva</button></div>
+        <div id="ideas-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd">Recursos</div>
+        <a class="lcard" href="https://www.ycombinator.com/library" target="_blank"><div class="lico" style="background:rgba(255,179,110,.1)">🚀</div><div><div class="lname">Y Combinator Library</div><div class="ldesc">Playbooks de los mejores founders</div></div><div class="larr">↗</div></a>
+        <a class="lcard" href="https://www.indiehackers.com" target="_blank"><div class="lico" style="background:rgba(126,245,192,.08)">💡</div><div><div class="lname">Indie Hackers</div><div class="ldesc">Revenue real · founders solos</div></div><div class="larr">↗</div></a>
+        <a class="lcard" href="https://acquisition.com" target="_blank"><div class="lico" style="background:rgba(255,107,107,.08)">📈</div><div><div class="lname">Acquisition.com</div><div class="ldesc">Hormozi · escalar negocios</div></div><div class="larr">↗</div></a>
+      </div>
+    </div>
+    <div class="tsec" id="em-patrimonio">
+      <div class="card">
+        <div class="card-hd">Objetivos financieros</div>
+        <div class="fin-goal"><div class="fg-left"><div class="fg-name">Fondo emergencia</div><div class="fg-sub">€0 → €3.000</div></div><div class="fg-bar"><div class="fg-fill" id="fg1" style="width:12%;background:var(--o)"></div></div><div class="fg-pct" id="fp1">12%</div></div>
+        <div class="fin-goal"><div class="fg-left"><div class="fg-name">Capital startup</div><div class="fg-sub">€0 → €1.000</div></div><div class="fg-bar"><div class="fg-fill" id="fg2" style="width:5%;background:var(--g)"></div></div><div class="fg-pct" id="fp2">5%</div></div>
+        <div class="fin-goal"><div class="fg-left"><div class="fg-name">ETF S&P500</div><div class="fg-sub">€0 → €200/mes</div></div><div class="fg-bar"><div class="fg-fill" id="fg3" style="width:0%;background:var(--b)"></div></div><div class="fg-pct" id="fp3">0%</div></div>
+        <div class="fin-goal" style="border:none"><div class="fg-left"><div class="fg-name">Certificaciones IA</div><div class="fg-sub">€0 → €200</div></div><div class="fg-bar"><div class="fg-fill" id="fg4" style="width:30%;background:var(--p)"></div></div><div class="fg-pct" id="fp4">30%</div></div>
+      </div>
+      <div class="card">
+        <div class="card-hd">Plan CEO desde cero</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div class="ag-ev"><div style="font-size:18px">1️⃣</div><div><div class="ag-title">Fondo emergencia primero</div><div class="ag-sub">3 meses de gastos antes de invertir</div></div></div>
+          <div class="ag-ev"><div style="font-size:18px">2️⃣</div><div><div class="ag-title">Regla 50/30/20</div><div class="ag-sub">50% necesidades · 30% gustos · 20% ahorro</div></div></div>
+          <div class="ag-ev"><div style="font-size:18px">3️⃣</div><div><div class="ag-title">ETF indexado cuando tengas fondo</div><div class="ag-sub">€50/mes mínimo · interés compuesto</div></div></div>
+          <div class="ag-ev" style="border:none"><div style="font-size:18px">4️⃣</div><div><div class="ag-title">Startup = multiplicador</div><div class="ag-sub">Primera factura en 90 días de junio</div></div></div>
+        </div>
+        <button class="qb" style="margin-top:10px" onclick="askAI('Plan financiero detallado para alguien que empieza desde cero en España con trabajo a tiempo completo y startup en junio. Dame pasos concretos')">✦ Plan completo IA</button>
+      </div>
+    </div>
+    <div class="tsec" id="em-objetivos">
+      <div class="card">
+        <div class="card-hd">Objetivos vitales <button class="card-act" onclick="addObjetivo()">+ Nuevo</button></div>
+        <div id="obj-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DESARROLLO ══ -->
+  <div class="page" id="page-desarrollo">
+    <div class="h1">Desarrollo</div>
+    <div class="sub">Hábitos CEO · Inglés · IA Academy</div>
+    <div class="tabs">
+      <button class="tab on" onclick="devtab('habitos',this)">Hábitos CEO</button>
+      <button class="tab" onclick="devtab('ingles',this)">Inglés</button>
+      <button class="tab" onclick="devtab('ia',this)">IA Academy</button>
+    </div>
+    <div class="tsec on" id="dev-habitos">
+      <div class="insight"><b>Protocolo:</b> Marca cada hábito cuando lo ejecutas. Un toque = hecho hoy.</div>
+      <div id="ceo-habits-list"></div>
+    </div>
+    <div class="tsec" id="dev-ingles">
+      <div class="g3" style="margin-bottom:12px">
+        <div class="mcard"><div class="mlabel">Nivel</div><div class="mval">B2</div><div class="msub">→ C1</div><div class="mbar"><div class="mfill" style="width:60%;background:var(--y)"></div></div></div>
+        <div class="mcard"><div class="mlabel">Racha</div><div class="mval">12</div><div class="msub">días</div><div class="mbar"><div class="mfill" style="width:80%;background:var(--g)"></div></div></div>
+        <div class="mcard"><div class="mlabel">Plan</div><div class="mval">30<span style="font-size:13px;color:var(--t1)">min</span></div><div class="msub">diarios</div></div>
+      </div>
+
+      <div class="tabs" style="margin-bottom:12px">
+        <button class="tab on" onclick="engtab('speaking',this)">Speaking</button>
+        <button class="tab" onclick="engtab('vocab',this)">Vocabulario</button>
+        <button class="tab" onclick="engtab('grammar',this)">Gramática</button>
+        <button class="tab" onclick="engtab('practica',this)">Practica IA</button>
+      </div>
+
+      <!-- SPEAKING -->
+      <div class="tsec on" id="eng-speaking">
+        <div class="insight"><b>El secreto del speaking:</b> No es saber más gramática. Es hablar aunque cometas errores. Usa el shadowing — imita exactamente el ritmo, entonación y velocidad de un nativo.</div>
+        <div class="card" style="margin-bottom:10px">
+          <div class="card-hd">Escenario de conversación del día <button class="card-act" onclick="nextScenario()">↻ Nuevo</button></div>
+          <div id="scenario-display"></div>
+          <button class="qb" style="margin-top:10px;width:100%" onclick="practiceScenario()">✦ Practicar este escenario con IA →</button>
+        </div>
+        <div class="card" style="margin-bottom:10px">
+          <div class="card-hd">Técnica Shadowing — frase del día <button class="card-act" onclick="nextPhrase()">↻ Nueva</button></div>
+          <div class="eng-phrase">
+            <div class="eng-p" id="eng-p">"I'd like to leverage this opportunity to scale significantly."</div>
+            <div class="eng-ph" id="eng-ph">/ ˈlevərɪdʒ / / skeɪl /</div>
+            <div class="eng-tr" id="eng-tr">Aprovechar esta oportunidad para escalar significativamente.</div>
+          </div>
+          <div style="font-size:11px;color:var(--t1);margin-top:8px;line-height:1.6;background:rgba(184,168,255,.05);padding:10px;border-radius:8px">
+            <b style="color:var(--p)">Cómo hacer shadowing:</b><br>
+            1. Lee la frase en voz alta 3 veces<br>
+            2. Grábate y compara con un nativo en YouTube<br>
+            3. Imita exactamente: ritmo, pausas, entonación<br>
+            4. Repite hasta que suene natural
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Recursos speaking</div>
+          <a class="lcard" href="https://www.youtube.com/@EnglishwithLucy" target="_blank"><div class="lico" style="background:rgba(255,107,107,.08)">▶️</div><div><div class="lname">English with Lucy</div><div class="ldesc">Pronunciación y fluidez · YouTube</div></div><div class="larr">↗</div></a>
+          <a class="lcard" href="https://www.youtube.com/@mmmEnglish_Emma" target="_blank"><div class="lico" style="background:rgba(184,168,255,.08)">🎙️</div><div><div class="lname">mmm English</div><div class="ldesc">Speaking natural y confianza</div></div><div class="larr">↗</div></a>
+          <a class="lcard" href="https://www.bbc.co.uk/learningenglish" target="_blank"><div class="lico" style="background:rgba(255,179,110,.08)">📻</div><div><div class="lname">BBC Learning English</div><div class="ldesc">Listening + speaking C1</div></div><div class="larr">↗</div></a>
+        </div>
+      </div>
+
+      <!-- VOCABULARIO -->
+      <div class="tsec" id="eng-vocab">
+        <div class="insight"><b>Método:</b> 5 palabras nuevas al día con contexto real. No listas. Frases completas con pronunciación. Las que uses en tu startup y trabajo.</div>
+        <div class="card" style="margin-bottom:10px">
+          <div class="card-hd">Palabra del día <button class="card-act" onclick="nextVocab()">↻ Nueva</button></div>
+          <div id="vocab-display"></div>
+        </div>
+        <div class="card" style="margin-bottom:10px">
+          <div class="card-hd">Mis palabras guardadas <button class="card-act" onclick="addVocabWord()">+ Añadir</button></div>
+          <div id="vocab-saved" style="max-height:280px;overflow-y:auto"></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Recursos vocabulario</div>
+          <a class="lcard" href="https://www.vocabulary.com" target="_blank"><div class="lico" style="background:rgba(126,245,192,.08)">📖</div><div><div class="lname">Vocabulary.com</div><div class="ldesc">Aprende con contexto real</div></div><div class="larr">↗</div></a>
+          <a class="lcard" href="https://youglish.com" target="_blank"><div class="lico" style="background:rgba(110,181,255,.08)">🔊</div><div><div class="lname">YouGlish</div><div class="ldesc">Cómo pronuncian los nativos</div></div><div class="larr">↗</div></a>
+        </div>
+      </div>
+
+      <!-- GRAMMAR -->
+      <div class="tsec" id="eng-grammar">
+        <div class="card" style="margin-bottom:10px">
+          <div class="card-hd">Quiz del día</div>
+          <div style="font-size:13px;font-weight:500;margin-bottom:12px;line-height:1.55" id="q-txt"></div>
+          <div class="eng-opts" id="q-opts"></div>
+          <div id="q-exp" style="font-size:11px;color:var(--t1);margin-bottom:8px;display:none"></div>
+          <button class="qb" onclick="nextGramQ()">Siguiente →</button>
+        </div>
+        <div class="card">
+          <div class="card-hd">Reglas clave B2→C1</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="background:var(--s2);border-radius:9px;padding:11px">
+              <div style="font-size:11px;font-weight:500;color:var(--p);margin-bottom:4px">Perfect tenses</div>
+              <div style="font-size:11px;color:var(--t1);line-height:1.6">Present Perfect: experiencia sin tiempo definido<br><em style="color:var(--t2)">"I have worked with AI tools."</em></div>
+            </div>
+            <div style="background:var(--s2);border-radius:9px;padding:11px">
+              <div style="font-size:11px;font-weight:500;color:var(--p);margin-bottom:4px">Conditionals 2 y 3</div>
+              <div style="font-size:11px;color:var(--t1);line-height:1.6">2nd: situación hipotética presente<br><em style="color:var(--t2)">"If I had more time, I would learn Python."</em></div>
+            </div>
+            <div style="background:var(--s2);border-radius:9px;padding:11px">
+              <div style="font-size:11px;font-weight:500;color:var(--p);margin-bottom:4px">Passive voice (business)</div>
+              <div style="font-size:11px;color:var(--t1);line-height:1.6">Muy usada en emails y reuniones<br><em style="color:var(--t2)">"The proposal was reviewed and approved."</em></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRACTICA IA -->
+      <div class="tsec" id="eng-practica">
+        <div class="insight"><b>Cómo sacarle partido:</b> Habla como si fuera una reunión real. Pide que te corrija el speaking, que te enseñe cómo lo diría un nativo, y que te ponga a prueba con preguntas.</div>
+        <div class="qa">
+          <button class="qb" onclick="askEngAI('Let's have a conversation about my startup idea. Ask me questions in English and correct my mistakes.')">Conversación startup</button>
+          <button class="qb" onclick="askEngAI('Give me a job interview simulation in English. Ask me 5 questions about my background and skills.')">Simular entrevista</button>
+          <button class="qb" onclick="askEngAI('Teach me 5 business English phrases I can use in emails and meetings. Give pronunciation guides.')">Frases de negocio</button>
+          <button class="qb" onclick="askEngAI('Correct my English and teach me how a native would say it: I want to present my idea to investors.')">Corregir frase</button>
+        </div>
+        <div class="aipanel" style="margin-bottom:10px">
+          <div class="aihdr"><div class="aidot"></div><div class="ainame">English Coach</div><div class="aimeta">Speaking · Vocab · Grammar</div></div>
+          <div class="aimsgs" id="eng-msgs" style="min-height:140px;max-height:260px">
+            <div class="amsg bot">Hi Luis! I'm your English coach. I know you're at B2 and want to reach C1 — especially speaking and vocabulary.<br><br>We can do: real conversations, pronunciation practice, business phrases, grammar drills, or interview simulations. What do you want to work on today?</div>
+          </div>
+          <div class="aibar"><input class="aiinp" id="eng-inp" placeholder="Write or ask in English..." onkeydown="if(event.key==='Enter')sendEng()"><button class="aisend" id="eng-send" onclick="sendEng()">↑</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="tsec" id="dev-ia">
+      <div class="insight"><b>Stack recomendado:</b> Claude API + Python básico + n8n + SQL. Con esto + certificaciones = contratrable y fundable.</div>
+      <div class="card">
+        <div class="card-hd">Anthropic Academy <a href="https://anthropic.skilljar.com" target="_blank" style="color:var(--p);font-size:10px;text-decoration:none;margin-left:8px">Ver todos los cursos ↗</a></div>
+        <div id="certs-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-hd">Aprende agentes IA</div>
+        <a class="lcard" href="https://docs.anthropic.com" target="_blank"><div class="lico" style="background:rgba(255,179,110,.1)">✦</div><div><div class="lname">Claude API Docs</div><div class="ldesc">Tools, agentes, computer use</div></div><div class="larr">↗</div></a>
+        <a class="lcard" href="https://n8n.io" target="_blank"><div class="lico" style="background:rgba(255,133,179,.08)">⚡</div><div><div class="lname">n8n</div><div class="ldesc">Agentes sin código</div></div><div class="larr">↗</div></a>
+        <a class="lcard" href="https://learn.deeplearning.ai" target="_blank"><div class="lico" style="background:rgba(110,181,255,.08)">🎓</div><div><div class="lname">DeepLearning.AI</div><div class="ldesc">Cursos cortos · Gratis</div></div><div class="larr">↗</div></a>
+        <a class="lcard" href="https://www.kaggle.com/learn" target="_blank"><div class="lico" style="background:rgba(240,208,128,.06)">📈</div><div><div class="lname">Kaggle Learn</div><div class="ldesc">Python · ML · Data</div></div><div class="larr">↗</div></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ VIDA ══ -->
+  <div class="page" id="page-vida">
+    <div class="h1">Vida</div>
+    <div class="sub">Agenda · Social · Noticias</div>
+    <div class="tabs">
+      <button class="tab on" onclick="vidatab('agenda',this)">Agenda</button>
+      <button class="tab" onclick="vidatab('social',this)">Social</button>
+      <button class="tab" onclick="vidatab('mundo',this)">Mundo</button>
+    </div>
+    <div class="tsec on" id="vd-agenda">
+      <div class="card">
+        <div class="card-hd">Próximos compromisos</div>
+        <div class="ag-ev"><div class="ag-time">Vie 18:30</div><div class="ag-dot" style="background:var(--b)"></div><div><div class="ag-title">Psicólogo</div><div class="ag-sub">Semanal · No mover</div><div class="reminder">⏰ Cada viernes</div></div></div>
+        <div class="ag-ev"><div class="ag-time">May 25</div><div class="ag-dot" style="background:var(--p)"></div><div><div class="ag-title">Examen Prog. Multimedia</div><div class="ag-sub">8:00h · 5 RA tipo test</div></div></div>
+        <div class="ag-ev"><div class="ag-time">May 26</div><div class="ag-dot" style="background:var(--o)"></div><div><div class="ag-title">Examen Gestión Empresarial</div><div class="ag-sub">8:00h · 5 RA tipo test</div></div></div>
+        <div class="ag-ev"><div class="ag-time">May 29</div><div class="ag-dot" style="background:var(--g)"></div><div><div class="ag-title">Examen Prog. Servicios</div><div class="ag-sub">8:00h · 5 RA tipo test</div></div></div>
+        <div class="ag-ev" style="border:none"><div class="ag-time">Jun 1</div><div class="ag-dot" style="background:var(--g)"></div><div><div class="ag-title">Modo Startup</div><div class="ag-sub">Post-exámenes · A por ello</div></div></div>
+      </div>
+      <div class="card">
+        <div class="card-hd">Añadir evento <button class="card-act" onclick="document.getElementById('ev-t').focus()">+ Nuevo</button></div>
+        <input id="ev-t" class="finput" placeholder="Título del evento...">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px">
+          <input id="ev-w" class="finput" style="margin-bottom:0" placeholder="Cuándo...">
+          <select id="ev-tp" class="finput" style="margin-bottom:0"><option>Personal</option><option>Trabajo</option><option>Salud</option><option>Estudio</option><option>Pareja</option></select>
+        </div>
+        <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--t1);cursor:pointer;margin-bottom:10px"><input type="checkbox" id="ev-r"> Recordatorio 30min antes</label>
+        <button class="qb" onclick="saveEvento()">Guardar</button>
+        <div id="saved-eventos" style="margin-top:10px"></div>
+      </div>
+    </div>
+    <div class="tsec" id="vd-social">
+      <div class="tabs" style="margin-bottom:12px">
+        <button class="tab on" onclick="soctab('general',this)">Social</button>
+        <button class="tab" onclick="soctab('pareja',this)">Pareja</button>
+      </div>
+      <div class="tsec on" id="sc-general">
+        <div class="card">
+          <div class="card-hd">Red vital · protegida incluso en exámenes</div>
+          <div class="ag-ev"><div style="font-size:18px;margin-right:4px">👥</div><div><div class="ag-title">Amigos</div><div class="ag-sub">1 salida mínimo/semana · Recargas energía</div></div><span class="pill" style="background:rgba(184,168,255,.08);color:var(--p)">1×/sem</span></div>
+          <div class="ag-ev"><div style="font-size:18px;margin-right:4px">🧠</div><div><div class="ag-title">Psicólogo</div><div class="ag-sub">Viernes · Inversión en salud mental</div></div><span class="pill" style="background:rgba(110,181,255,.08);color:var(--b)">semanal</span></div>
+          <div class="ag-ev" style="border:none"><div style="font-size:18px;margin-right:4px">👨‍👩‍👦</div><div><div class="ag-title">Familia</div><div class="ag-sub">Check-in semanal mínimo</div></div><span class="pill" style="background:rgba(240,208,128,.08);color:var(--y)">1×/sem</span></div>
+        </div>
+      </div>
+      <div class="tsec" id="sc-pareja">
+        <div class="card">
+          <div class="card-hd">Pareja · calidad sobre cantidad</div>
+          <div class="insight"><b>Principio:</b> 3 noches con presencia real > 7 noches con el móvil. El tiempo de pareja es combustible, no un lujo.</div>
+          <div class="tlist" id="pareja-tasks"></div>
+          <button class="qb" style="margin-top:10px" onclick="askAI('Ideas concretas para mantener relación de pareja fuerte mientras estudio para exámenes y trabajo a tiempo completo')">✦ Consejo IA</button>
+        </div>
+      </div>
+    </div>
+    <div class="tsec" id="vd-mundo">
+      <div class="qa">
+        <button class="qb" onclick="loadNews('resumen ejecutivo de las 5 noticias más importantes de España y el mundo hoy')">España hoy</button>
+        <button class="qb" onclick="loadNews('últimas noticias sobre inteligencia artificial y startups tecnológicas')">IA & Tech</button>
+        <button class="qb" onclick="loadNews('noticias de economía y mercados financieros hoy en España')">Economía</button>
+        <button class="qb" onclick="loadNews('noticias de emprendimiento y startups en España')">Startups</button>
+      </div>
+      <div class="card">
+        <div class="card-hd">Briefing ejecutivo <button class="card-act" onclick="loadNews('briefing ejecutivo estilo CEO: 5 noticias más importantes del mundo hoy')">✦ Generar</button></div>
+        <div class="aimsgs" id="news-msgs" style="min-height:120px;max-height:320px">
+          <div class="amsg bot">Elige una categoría o pulsa "Generar" para el briefing del día.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd">Fuentes</div>
+        <a class="lcard" href="https://www.elconfidencial.com" target="_blank"><div class="lico" style="background:rgba(255,107,107,.08)">🇪🇸</div><div><div class="lname">El Confidencial</div><div class="ldesc">España · economía</div></div><div class="larr">↗</div></a>
+        <a class="lcard" href="https://techcrunch.com" target="_blank"><div class="lico" style="background:rgba(126,245,192,.06)">💻</div><div><div class="lname">TechCrunch</div><div class="ldesc">Tech · practica inglés</div></div><div class="larr">↗</div></a>
+        <a class="lcard" href="https://www.expansion.com" target="_blank"><div class="lico" style="background:rgba(255,179,110,.06)">📊</div><div><div class="lname">Expansión</div><div class="ldesc">Negocios y mercados</div></div><div class="larr">↗</div></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PERSONAL ══ -->
+  <div class="page" id="page-personal">
+    <div class="h1">Espacio personal</div>
+    <div class="sub">Para ti solo · Refuerzo diario · Perspectiva real</div>
+    <div class="tabs">
+      <button class="tab on" onclick="pertab('frases',this)">Frase del día</button>
+      <button class="tab" onclick="pertab('afirmaciones',this)">Afirmaciones</button>
+      <button class="tab" onclick="pertab('referentes',this)">Referentes</button>
+    </div>
+    <div class="tsec on" id="pr-frases">
+      <div class="quote-card" id="quote-card">
+        <div class="big-quote" id="qt"></div>
+        <div class="q-author" id="qa"></div>
+        <div class="qnav"><button class="qbtn" onclick="prevQ()">←</button><button class="qbtn" onclick="nextQote()">→</button></div>
+      </div>
+      <div class="card">
+        <div class="card-hd">Cuando el agobio llega</div>
+        <div style="font-size:13px;color:var(--t1);line-height:1.8;margin-bottom:12px">
+          Luis, para. Respira.<br><br>
+          Estás haciendo algo que la mayoría de personas ni se plantea. No estás retrasado — estás exactamente donde tenías que estar. El sistema que has construido esta semana ya es más que lo que el 90% tiene.<br><br>
+          La edad no te quita nada. Te da criterio, experiencia y la claridad de saber por qué haces las cosas.
+        </div>
+        <div style="font-size:12px;font-family:var(--fm);color:var(--p);padding:10px 14px;background:rgba(184,168,255,.06);border-radius:8px;line-height:1.8">
+          → Cada RA que estudias es un ladrillo real.<br>
+          → Cada mañana de gym es disciplina acumulada.<br>
+          → Cada línea de código es experiencia que no te quita nadie.<br>
+          → La independencia no tiene fecha de expiración.
+        </div>
+      </div>
+    </div>
+    <div class="tsec" id="pr-afirmaciones">
+      <div class="insight"><b>Protocolo:</b> Léelas en voz alta cada mañana después del gym. 2 minutos. No las saltes.</div>
+      <div id="afirmaciones-list"></div>
+    </div>
+    <div class="tsec" id="pr-referentes">
+      <div class="insight"><b>Datos reales.</b> No motivación barata. Personas que empezaron tarde y cambiaron el mundo.</div>
+      <div id="referentes-list"></div>
+    </div>
+  </div>
+
+  <!-- ══ ASISTENTE ══ -->
+  <div class="page" id="page-asistente">
+    <div class="h1">Asistente APEX</div>
+    <div class="sub">Tu Chief of Staff · Claude · Conoce toda tu situación</div>
+    <div class="qa">
+      <button class="qb" onclick="askAI('Planifícame el lunes: gym antes de las 10, trabajo 10-18, estudio después. Bloques exactos para estudiar los exámenes')">Planificar lunes</button>
+      <button class="qb" onclick="askAI('Qué debería estudiar hoy para los exámenes de mayo? Dame las tareas exactas')">¿Qué estudio hoy?</button>
+      <button class="qb" onclick="askAI('Estrategia para conseguir el primer cliente de mi agencia IA en junio. Soy uno solo, sin inversión, en España')">Primer cliente</button>
+      <button class="qb" onclick="askAI('Plan financiero para alguien que empieza desde cero en España con trabajo y startup. Independencia financiera posible?')">Finanzas</button>
+      <button class="qb" onclick="askAI('Lista de la compra semanal para ganar músculo y rendir bien estudiando. Presupuesto ajustado España')">Lista compra</button>
+      <button class="qb" onclick="askAI('Técnicas para mantener concentración estudiando después de 8h de trabajo. Qué hacen los mejores?')">Concentración</button>
+    </div>
+    <div class="aipanel">
+      <div class="aihdr"><div class="aidot"></div><div class="ainame">APEX · Chief of Staff</div><div class="aimeta">Claude · Madrid</div></div>
+      <div class="aimsgs" id="ai-msgs">
+        <div class="amsg bot">Hola Luis. Situación actual: trabajo L–V 10–18 (sáb alternos hasta 14:30), gym antes del trabajo, 3 exámenes última semana de mayo, certificación Claude sin deadline, startup en junio (agencia IA), psicólogo viernes, pareja y vida social protegidas.<br><br>¿Qué necesitas hoy?</div>
+      </div>
+      <div class="aibar">
+        <input class="aiinp" id="ai-inp" placeholder="Pregúntame lo que quieras..." onkeydown="if(event.key==='Enter')sendMain()">
+        <button class="aisend" id="ai-send" onclick="sendMain()">↑</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /scroller -->
+
+<!-- BOTTOM NAV -->
+<div class="botnav">
+  <button class="bn on" onclick="goPage('hoy')" id="bn-hoy"><div class="bn-icon">◈</div><div class="bn-label">Hoy</div></button>
+  <button class="bn" onclick="goPage('examenes')" id="bn-examenes"><div class="bn-icon">📚</div><div class="bn-label">Exámenes</div></button>
+  <button class="bn" onclick="goPage('empresa')" id="bn-empresa"><div class="bn-icon">◇</div><div class="bn-label">Empresa</div></button>
+  <button class="bn" onclick="goPage('desarrollo')" id="bn-desarrollo"><div class="bn-icon">◐</div><div class="bn-label">Desarrollo</div></button>
+  <button class="bn" onclick="goPage('vida')" id="bn-vida"><div class="bn-icon">○</div><div class="bn-label">Vida</div></button>
+  <button class="bn" onclick="goPage('personal')" id="bn-personal"><div class="bn-icon">✦</div><div class="bn-label">Personal</div></button>
+  <button class="bn" onclick="goPage('asistente')" id="bn-asistente"><div class="bn-icon">🤖</div><div class="bn-label">Apex IA</div></button>
+</div>
+
+</div><!-- /shell -->
+<script>// ─── STORAGE HELPERS ───
+const S = {
+  get(k,d=null){try{const v=localStorage.getItem('apex_'+k);return v?JSON.parse(v):d}catch{return d}},
+  set(k,v){try{localStorage.setItem('apex_'+k,JSON.stringify(v))}catch{}},
+};
+
+// ─── NAV ───
+const PAGES = ['hoy','examenes','empresa','desarrollo','vida','personal','asistente'];
+const PAGE_TITLES = {hoy:'Hoy',examenes:'Exámenes',empresa:'Empresa',desarrollo:'Desarrollo',vida:'Vida',personal:'Personal',asistente:'Asistente IA'};
+
+function goPage(id) {
+  PAGES.forEach(p => {
+    document.getElementById('page-'+p).classList.toggle('on', p===id);
+    document.getElementById('bn-'+p).classList.toggle('on', p===id);
+  });
+  document.getElementById('topbar-title').textContent = PAGE_TITLES[id]||id;
+  document.getElementById('scroller').scrollTop = 0;
+}
+
+// ─── TABS ───
+function etab(id,btn){tabSwitch('et-',['plan','asig'],id,btn);}
+function emptab(id,btn){tabSwitch('em-',['startup','patrimonio','objetivos'],id,btn);}
+function devtab(id,btn){tabSwitch('dev-',['habitos','ingles','ia'],id,btn);}
+function vidatab(id,btn){tabSwitch('vd-',['agenda','social','mundo'],id,btn);}
+function soctab(id,btn){tabSwitch('sc-',['general','pareja'],id,btn);}
+function pertab(id,btn){tabSwitch('pr-',['frases','afirmaciones','referentes'],id,btn);}
+
+function tabSwitch(prefix, ids, active, btn) {
+  ids.forEach(i => document.getElementById(prefix+i).classList.toggle('on', i===active));
+  btn.closest('.tabs').querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+// ─── DATES ───
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+const DAYS_ES = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const MONTHS_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DAYS_SHORT = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+function daysUntil(y,m,d){return Math.ceil((new Date(y,m-1,d)-TODAY)/86400000);}
+
+function initDates() {
+  const sub = document.getElementById('hoy-sub');
+  if(sub) sub.textContent = `${DAYS_ES[TODAY.getDay()]} · ${TODAY.getDate()} de ${MONTHS_ES[TODAY.getMonth()]} · Modo exámenes activo`;
+  const hf = document.getElementById('hoy-fecha');
+  if(hf) hf.textContent = `${TODAY.getDate()}/${TODAY.getMonth()+1}`;
+
+  const cnts = [
+    ['cnt-pmm',2025,5,25],['cnt-sge',2025,5,26],['cnt-psp',2025,5,29],['cnt-dead',2025,5,18]
+  ];
+  cnts.forEach(([id,y,m,d])=>{
+    const el=document.getElementById(id);
+    if(el){const diff=daysUntil(y,m,d);el.textContent=diff>0?diff:(diff===0?'HOY':'✓');}
+  });
+  const de = document.getElementById('dias-exam');
+  if(de) de.textContent = Math.max(0,daysUntil(2025,5,25));
+  const dd2 = document.getElementById('days-dead2');
+  if(dd2) dd2.textContent = Math.max(0,daysUntil(2025,5,18));
+  const sd = document.getElementById('startup-dias');
+  if(sd) sd.textContent = Math.max(0,daysUntil(2025,6,1));
+}
+
+// ─── TODOS HOY ───
+const DEFAULT_TODOS = [
+  {text:'Bloque estudio exámenes',tag:'crítico',tagColor:'rgba(255,107,107,.1)',tagTxt:'var(--r)'},
+  {text:'Gym antes del trabajo',tag:'hecho',tagColor:'rgba(126,245,192,.08)',tagTxt:'var(--g)'},
+  {text:'Cert. Claude módulo activo',tag:'cert',tagColor:'rgba(255,179,110,.08)',tagTxt:'var(--o)'},
+  {text:'Speaking inglés 30min',tag:'skills',tagColor:'rgba(240,208,128,.08)',tagTxt:'var(--y)'},
+  {text:'Revisar plan del día',tag:'plan',tagColor:'rgba(184,168,255,.08)',tagTxt:'var(--p)'},
+];
+
+function initTodos() {
+  const stored = S.get('todos_'+todayKey(), DEFAULT_TODOS.map(t=>({...t,done:false})));
+  const list = document.getElementById('todo-hoy');
+  if(!list) return;
+  list.innerHTML = '';
+  stored.forEach((t,i) => {
+    const div = document.createElement('div');
+    div.className = 'titem'+(t.done?' done':'');
+    div.innerHTML = `<div class="tcheck${t.done?' on':''}"></div><div class="ttext">${t.text}</div><span class="pill" style="background:${t.tagColor};color:${t.tagTxt}">${t.tag}</span>`;
+    div.onclick = () => { t.done=!t.done; div.classList.toggle('done',t.done); div.querySelector('.tcheck').classList.toggle('on',t.done); saveTodos(stored); };
+    list.appendChild(div);
+  });
+}
+
+function todayKey(){return `${TODAY.getFullYear()}_${TODAY.getMonth()}_${TODAY.getDate()}`;}
+function saveTodos(data){S.set('todos_'+todayKey(),data);}
+function resetTodos(){S.set('todos_'+todayKey(),null);initTodos();}
+
+// ─── AGENDA HOY ───
+function initAgendaHoy() {
+  const day = TODAY.getDay();
+  const isWeekday = day>=1&&day<=5;
+  const isSat = day===6;
+  const items = [];
+  if(isWeekday||isSat) items.push({t:'6:15',label:'Gym antes del trabajo',color:'var(--g)',bg:'rgba(126,245,192,.06)',border:'rgba(126,245,192,.12)'});
+  if(isWeekday) items.push({t:'10:00',label:'Trabajo',color:'var(--pk)',bg:'rgba(255,133,179,.05)',border:'rgba(255,133,179,.1)'});
+  if(isSat) items.push({t:'10:30',label:'Trabajo (sábado)',color:'var(--pk)',bg:'rgba(255,133,179,.05)',border:'rgba(255,133,179,.1)'});
+  if(isWeekday) items.push({t:'18:00',label:'Estudio exámenes — Bloque',color:'var(--p)',bg:'rgba(184,168,255,.05)',border:'rgba(184,168,255,.1)'});
+  items.push({t:'20:00',label:'Inglés + Lectura 30min c/u',color:'var(--y)',bg:'rgba(240,208,128,.04)',border:'var(--b0)'});
+  if(day===5) items.push({t:'18:30',label:'Psicólogo',color:'var(--b)',bg:'rgba(110,181,255,.05)',border:'rgba(110,181,255,.12)'});
+  items.push({t:'21:00',label:'Cert. Claude — módulo activo',color:'var(--o)',bg:'rgba(255,179,110,.04)',border:'var(--b0)'});
+  items.push({t:'22:30',label:'Revisión del día + planificar mañana',color:'var(--t2)',bg:'rgba(255,255,255,.02)',border:'var(--b0)'});
+
+  const tl = document.getElementById('agenda-hoy');
+  if(!tl) return;
+  tl.innerHTML = '';
+  items.forEach((item,i) => {
+    const div = document.createElement('div');
+    div.className = 'te';
+    div.innerHTML = `<div class="tlbl">${item.t}</div><div class="tbar"><div class="tdot" style="background:${item.color}"></div></div><div class="tbody"><div class="tev" style="background:${item.bg};border:1px solid ${item.border}"><div class="ted" style="background:${item.color}"></div>${item.label}</div></div>`;
+    tl.appendChild(div);
+  });
+}
+
+// ─── HABITS ───
+const HABIT_CFG = [
+  {id:'h-gym',key:'gym',label:'Gym',color:'var(--g)',bg:'rgba(126,245,192,.15)',strkId:'strk-gym'},
+  {id:'h-ing',key:'ing',label:'Inglés',color:'var(--p)',bg:'rgba(184,168,255,.13)',strkId:'strk-ing'},
+  {id:'h-lec',key:'lec',label:'Lectura',color:'var(--y)',bg:'rgba(240,208,128,.12)',strkId:'strk-lec'},
+  {id:'h-est',key:'est',label:'Estudio',color:'var(--p)',bg:'rgba(184,168,255,.12)',strkId:'strk-est'},
+];
+const DAY_LETTERS = ['D','L','M','X','J','V','S'];
+
+function initHabits() {
+  HABIT_CFG.forEach(cfg => {
+    const el = document.getElementById(cfg.id); if(!el) return;
+    const stored = S.get('habit_'+cfg.key+'_week', Array(7).fill(false));
+    el.innerHTML = '';
+    let streak = 0;
+    stored.forEach((on,i)=>{
+      const d = document.createElement('div');
+      d.className = 'hd'+(on?' on':'');
+      d.textContent = on?'✓':DAY_LETTERS[i];
+      if(on){d.style.background=cfg.bg;d.style.borderColor=cfg.color;d.style.color=cfg.color;streak++;}
+      d.onclick=()=>{
+        stored[i]=!stored[i];d.classList.toggle('on',stored[i]);
+        if(stored[i]){d.style.background=cfg.bg;d.style.borderColor=cfg.color;d.style.color=cfg.color;d.textContent='✓';}
+        else{d.style.background='';d.style.borderColor='';d.style.color='';d.textContent=DAY_LETTERS[i];}
+        S.set('habit_'+cfg.key+'_week',stored);
+        const s=document.getElementById(cfg.strkId);
+        if(s)s.textContent=stored.filter(Boolean).length+'×';
+      };
+      el.appendChild(d);
+    });
+    const s=document.getElementById(cfg.strkId);
+    if(s)s.textContent=streak+'×';
+  });
+}
+
+// ─── EXAM PLAN DATA ───
+const PLAN_DATA = [
+  {date:[2025,4,27],day:'Dom',type:'study',label:'Inicio plan · PMM',tasks:[
+    {text:'PMM RA1 — Tecnologías de desarrollo para móviles (Tema 1)',subj:'PMM'},
+    {text:'PMM RA2 — Apps para móviles con librerías específicas (Tema 2)',subj:'PMM'},
+  ]},
+  {date:[2025,4,28],day:'Lun',type:'study',label:'Tarde · PMM',tasks:[
+    {text:'PMM RA3 — Programas con contenidos multimedia (Tema 3)',subj:'PMM'},
+    {text:'Repaso rápido PMM RA1 y RA2 · preguntas test',subj:'PMM'},
+  ]},
+  {date:[2025,4,29],day:'Mar',type:'study',label:'Tarde · PMM',tasks:[
+    {text:'PMM RA4 — Motores de juegos 2D y 3D (Tema 4)',subj:'PMM'},
+  ]},
+  {date:[2025,4,30],day:'Mié',type:'study',label:'Tarde · PMM',tasks:[
+    {text:'PMM RA5 — Desarrolla juegos 2D y 3D (Tema 5)',subj:'PMM'},
+  ]},
+  {date:[2025,5,1],day:'Jue',type:'free',label:'Festivo · recarga',tasks:[
+    {text:'Repaso ligero PMM RA3+RA4+RA5 (1h máx)',subj:'PMM'},
+  ]},
+  {date:[2025,5,2],day:'Vie',type:'study',label:'Tarde · cierre PMM + inicio SGE',tasks:[
+    {text:'PMM — Repaso completo 5 RA · Simula test mental',subj:'PMM'},
+    {text:'SGE RA1 — Sistemas ERP-CRM características (Tema 1)',subj:'SGE'},
+  ]},
+  {date:[2025,5,3],day:'Sáb',type:'study',label:'Fin de semana · SGE intensivo',tasks:[
+    {text:'SGE RA2 — Implantación ERP-CRM documentación técnica (Tema 2)',subj:'SGE'},
+    {text:'SGE RA3 — Operaciones de gestión en ERP-CRM (Tema 3)',subj:'SGE'},
+    {text:'Repaso SGE RA1+RA2+RA3',subj:'SGE'},
+  ]},
+  {date:[2025,5,4],day:'Dom',type:'study',label:'Fin de semana · SGE cierre',tasks:[
+    {text:'SGE RA4 — Adaptación ERP-CRM requerimientos empresa (Tema 4)',subj:'SGE'},
+    {text:'SGE RA5 — Componentes para ERP-CRM con programación (Tema 5)',subj:'SGE'},
+    {text:'Repaso completo SGE 5 RA',subj:'SGE'},
+  ]},
+  {date:[2025,5,5],day:'Lun',type:'study',label:'Tarde · inicio PSP',tasks:[
+    {text:'PSP RA5 — Seguridad en acceso y transmisión (Tema 1)',subj:'PSP'},
+    {text:'PSP RA1 — Procesos paralelos (Tema 2)',subj:'PSP'},
+  ]},
+  {date:[2025,5,6],day:'Mar',type:'study',label:'Tarde · PSP',tasks:[
+    {text:'PSP RA2 — Hilos de ejecución y librerías (Tema 3)',subj:'PSP'},
+  ]},
+  {date:[2025,5,7],day:'Mié',type:'study',label:'Tarde · PSP',tasks:[
+    {text:'PSP RA3 — Comunicación en red con sockets (Tema 4)',subj:'PSP'},
+  ]},
+  {date:[2025,5,8],day:'Jue',type:'study',label:'Tarde · PSP',tasks:[
+    {text:'PSP RA4 — Servicios en red y librerías de eficiencia (Tema 5)',subj:'PSP'},
+  ]},
+  {date:[2025,5,9],day:'Vie',type:'study',label:'Tarde · cierre PSP',tasks:[
+    {text:'PSP — Repaso completo 5 RA · Simula test',subj:'PSP'},
+    {text:'Repaso rápido PMM RA1-RA3 (30min)',subj:'PMM'},
+  ]},
+  {date:[2025,5,10],day:'Sáb',type:'study',label:'Fin de semana · repaso cruzado',tasks:[
+    {text:'PMM — Repaso completo RA4 y RA5',subj:'PMM'},
+    {text:'SGE — Repaso completo RA1, RA2 y RA3',subj:'SGE'},
+  ]},
+  {date:[2025,5,11],day:'Dom',type:'study',label:'Fin de semana · repaso cruzado',tasks:[
+    {text:'SGE — Repaso RA4 y RA5',subj:'SGE'},
+    {text:'PSP — Repaso completo RA1-RA5',subj:'PSP'},
+  ]},
+  {date:[2025,5,12],day:'Lun',type:'study',label:'Simulacro PMM completo',tasks:[
+    {text:'Simulacro tipo test PMM — 5 RA sin apuntes',subj:'PMM'},
+    {text:'Anota los fallos y solo refuerza esos puntos',subj:'PMM'},
+  ]},
+  {date:[2025,5,13],day:'Mar',type:'study',label:'Simulacro SGE completo',tasks:[
+    {text:'Simulacro tipo test SGE — 5 RA sin apuntes',subj:'SGE'},
+    {text:'Refuerzo puntos débiles SGE',subj:'SGE'},
+  ]},
+  {date:[2025,5,14],day:'Mié',type:'study',label:'Simulacro PSP completo',tasks:[
+    {text:'Simulacro tipo test PSP — 5 RA sin apuntes',subj:'PSP'},
+    {text:'Refuerzo puntos débiles PSP',subj:'PSP'},
+  ]},
+  {date:[2025,5,15],day:'Jue',type:'study',label:'Refuerzo libre',tasks:[
+    {text:'Refuerza la RA que peor salió en simulacros',subj:'REPASO'},
+  ]},
+  {date:[2025,5,16],day:'Vie',type:'study',label:'Último repaso intensivo',tasks:[
+    {text:'Repaso rápido PMM — esquemas mentales RA a RA',subj:'PMM'},
+    {text:'Repaso rápido SGE — esquemas mentales RA a RA',subj:'SGE'},
+    {text:'Repaso rápido PSP — esquemas mentales RA a RA',subj:'PSP'},
+  ]},
+  {date:[2025,5,17],day:'Sáb',type:'deadline',label:'Pre-deadline · revisión final',tasks:[
+    {text:'¿Qué RA me genera dudas aún? Refuerza solo eso',subj:'REPASO'},
+  ]},
+  {date:[2025,5,18],day:'Dom',type:'deadline',label:'✓ DEADLINE — Todo listo hoy',tasks:[
+    {text:'Revisión final ligera — 1h máx por asignatura',subj:'REPASO'},
+    {text:'A partir de aquí: solo mantenimiento. Sin estudio intensivo.',subj:'REPASO'},
+  ]},
+  {date:[2025,5,19],day:'Lun',type:'study',label:'Mantenimiento ligero',tasks:[
+    {text:'PMM — 30min, solo conceptos clave',subj:'PMM'},
+  ]},
+  {date:[2025,5,20],day:'Mar',type:'study',label:'Mantenimiento',tasks:[
+    {text:'SGE — 30min, solo conceptos clave',subj:'SGE'},
+  ]},
+  {date:[2025,5,21],day:'Mié',type:'study',label:'Mantenimiento',tasks:[
+    {text:'PSP — 30min, solo conceptos clave',subj:'PSP'},
+  ]},
+  {date:[2025,5,22],day:'Jue',type:'study',label:'Mantenimiento',tasks:[
+    {text:'Repaso PMM dudas (última vez)',subj:'PMM'},
+  ]},
+  {date:[2025,5,23],day:'Vie',type:'study',label:'Último día — descanso activo',tasks:[
+    {text:'Máx 1h de estudio. Prepara DNI, boli, transporte.',subj:'REPASO'},
+  ]},
+  {date:[2025,5,24],day:'Sáb',type:'free',label:'Descanso total',tasks:[
+    {text:'Sin estudio. Pasea, pareja, gym suave. El cerebro consolida.',subj:'REPASO'},
+  ]},
+  {date:[2025,5,25],day:'Lun',type:'exam',label:'🎯 EXAMEN — Prog. Multimedia y Dispositivos Móviles',tasks:[
+    {text:'8:00h · 5 RA tipo test · Confía en lo trabajado',subj:'PMM'},
+  ]},
+  {date:[2025,5,26],day:'Mar',type:'exam',label:'🎯 EXAMEN — Sistemas de Gestión Empresarial',tasks:[
+    {text:'8:00h · 5 RA tipo test · Todo preparado',subj:'SGE'},
+  ]},
+  {date:[2025,5,27],day:'Mié',type:'free',label:'Descanso entre exámenes',tasks:[
+    {text:'Repaso mínimo PSP: 1h máx. Resto: descansa.',subj:'PSP'},
+  ]},
+  {date:[2025,5,28],day:'Jue',type:'free',label:'Pre-examen PSP',tasks:[
+    {text:'Repaso final PSP — una vuelta relajada. Sin agobio.',subj:'PSP'},
+  ]},
+  {date:[2025,5,29],day:'Vie',type:'exam',label:'🎯 EXAMEN — Programación de Servicios y Procesos',tasks:[
+    {text:'8:00h · 5 RA tipo test · Último examen. Lo tienes, Luis.',subj:'PSP'},
+  ]},
+  {date:[2025,5,30],day:'Sáb',type:'free',label:'🎉 FIN — Modo Startup: activado',tasks:[
+    {text:'Celébralo con tu pareja. Te lo has ganado.',subj:'REPASO'},
+  ]},
+];
+
+const SUBJ_C = {
+  PMM:{bg:'rgba(184,168,255,.08)',c:'var(--p)',pill:'rgba(184,168,255,.12)'},
+  SGE:{bg:'rgba(255,179,110,.07)',c:'var(--o)',pill:'rgba(255,179,110,.1)'},
+  PSP:{bg:'rgba(126,245,192,.07)',c:'var(--g)',pill:'rgba(126,245,192,.1)'},
+  REPASO:{bg:'rgba(255,255,255,.025)',c:'var(--t1)',pill:'rgba(255,255,255,.05)'},
+};
+
+let currentFilter = 'all';
+let planDone = S.get('plan_done', {});
+
+function filterPlan(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderPlan();
+}
+
+function renderPlan() {
+  const c = document.getElementById('plan-container'); if(!c) return;
+  c.innerHTML = '';
+  PLAN_DATA.forEach((day, di) => {
+    const dt = new Date(...day.date); dt.setHours(0,0,0,0);
+    const isPast = dt < TODAY;
+    const isToday = dt.getTime() === TODAY.getTime();
+    if(currentFilter !== 'all' && !day.tasks.some(t=>t.subj===currentFilter)) return;
+    const tasks = currentFilter==='all' ? day.tasks : day.tasks.filter(t=>t.subj===currentFilter);
+    const div = document.createElement('div');
+    let cls = 'day-block '+day.type;
+    if(isToday) cls += ' today-block';
+    if(isPast) div.style.opacity = '0.55';
+    div.className = cls;
+    let badge = '';
+    if(isToday) badge = `<span class="day-badge" style="background:rgba(126,245,192,.12);color:var(--g)">HOY</span>`;
+    else if(day.type==='exam') badge = `<span class="day-badge" style="background:rgba(255,107,107,.12);color:var(--r)">EXAMEN</span>`;
+    else if(day.type==='deadline') badge = `<span class="day-badge" style="background:rgba(255,179,110,.12);color:var(--o)">DEADLINE</span>`;
+    const [y,m,d] = day.date;
+    const dateStr = `${day.day} ${d}/${m}`;
+    const tasksHtml = tasks.map((t,ti)=>{
+      const key = `${di}_${day.tasks.indexOf(t)}`;
+      const done = planDone[key]||false;
+      const sc = SUBJ_C[t.subj]||SUBJ_C.REPASO;
+      return `<div class="dtask${done?' done':''}" onclick="tickPlan('${key}',this)"><div class="dtcheck${done?' on':''}"></div><span style="flex:1">${t.text}</span><span class="subj-tag" style="background:${sc.pill};color:${sc.c}">${t.subj}</span></div>`;
+    }).join('');
+    div.innerHTML = `<div class="day-hd"><div class="day-date">${dateStr}</div><div class="day-label">${day.label}</div>${badge}</div>${tasksHtml}`;
+    c.appendChild(div);
+  });
+}
+
+function tickPlan(key, el) {
+  planDone[key] = !planDone[key];
+  el.classList.toggle('done', planDone[key]);
+  el.querySelector('.dtcheck').classList.toggle('on', planDone[key]);
+  S.set('plan_done', planDone);
+}
+
+// ─── RA LISTS ───
+const RA_DATA = {
+  pmm:[
+    ['RA1','Aplica tecnologías de desarrollo para dispositivos móviles','Tema 1'],
+    ['RA2','Desarrolla apps para móviles con tecnologías y librerías específicas','Tema 2'],
+    ['RA3','Desarrolla programas con contenidos multimedia','Tema 3'],
+    ['RA4','Selecciona y prueba motores de juegos 2D y 3D','Tema 4'],
+    ['RA5','Desarrolla juegos 2D y 3D con motores de juegos','Tema 5'],
+  ],
+  sge:[
+    ['RA1','Identifica sistemas ERP-CRM reconociendo características y configuración','Tema 1'],
+    ['RA2','Implanta sistemas ERP-CRM interpretando documentación técnica','Tema 2'],
+    ['RA3','Realiza operaciones de gestión y consulta en ERP-CRM','Tema 3'],
+    ['RA4','Adapta sistemas ERP-CRM identificando requerimientos empresariales','Tema 4'],
+    ['RA5','Desarrolla componentes para ERP-CRM con lenguaje de programación','Tema 5'],
+  ],
+  psp:[
+    ['RA1','Desarrolla aplicaciones con procesos paralelos','Tema 2'],
+    ['RA2','Desarrolla aplicaciones con hilos de ejecución','Tema 3'],
+    ['RA3','Programa mecanismos de comunicación en red con sockets','Tema 4'],
+    ['RA4','Desarrolla aplicaciones con servicios en red y librerías de eficiencia','Tema 5'],
+    ['RA5','Protege aplicaciones y datos con criterios de seguridad','Tema 1'],
+  ],
+};
+const RA_COLORS = {pmm:'var(--p)',sge:'var(--o)',psp:'var(--g)'};
+
+function initRALists() {
+  ['pmm','sge','psp'].forEach(key=>{
+    const el = document.getElementById('ra-'+key+'-list'); if(!el) return;
+    el.innerHTML = '';
+    RA_DATA[key].forEach((ra,i)=>{
+      const stored = S.get(`ra_${key}_${i}`, 0);
+      const div = document.createElement('div');
+      div.className = 'ra-row';
+      div.innerHTML = `<div class="ra-num">${ra[0]}</div><div class="ra-info"><div class="ra-name">${ra[1]}</div><div class="ra-tema">${ra[2]}</div></div><div class="ra-controls"><div class="ra-pct" id="rap_${key}_${i}">${stored}%</div><div class="ra-check${stored>=100?' on':''}" id="rac_${key}_${i}" onclick="tglRA('${key}',${i},this)"></div></div>`;
+      el.appendChild(div);
+    });
+  });
+  updateRAStats();
+}
+
+function tglRA(key,i,btn) {
+  const stored = S.get(`ra_${key}_${i}`, 0);
+  const newVal = stored>=100 ? 0 : 100;
+  S.set(`ra_${key}_${i}`, newVal);
+  btn.classList.toggle('on', newVal>=100);
+  const pct = document.getElementById(`rap_${key}_${i}`);
+  if(pct) pct.textContent = newVal+'%';
+  updateRAStats();
+}
+
+function updateRAStats() {
+  let total=0,done=0;
+  ['pmm','sge','psp'].forEach(key=>{
+    RA_DATA[key].forEach((_,i)=>{
+      total++;
+      if(S.get(`ra_${key}_${i}`,0)>=100) done++;
+    });
+  });
+  const pf=document.getElementById('prog-total');if(pf)pf.style.width=Math.round(done/total*100)+'%';
+  const rd=document.getElementById('ra-done');if(rd)rd.textContent=done;
+}
+
+// ─── STARTUP TASKS ───
+const STARTUP_TASKS_DEF = [
+  {text:'Definir servicio principal: agencia IA para PYMEs',done:true},
+  {text:'Validar con 10 potenciales clientes reales',done:false},
+  {text:'Crear web + propuesta de valor clara',done:false},
+  {text:'Primer cliente de pago',done:false},
+  {text:'€1.000 MRR — 3 clientes recurrentes',done:false},
+  {text:'€3.000 MRR — independencia parcial',done:false},
+];
+
+function initStartupTasks() {
+  const stored = S.get('startup_tasks', STARTUP_TASKS_DEF);
+  const el = document.getElementById('startup-tasks'); if(!el) return;
+  el.innerHTML = '';
+  stored.forEach((t,i)=>{
+    const div=document.createElement('div');
+    div.className='titem'+(t.done?' done':'');
+    div.innerHTML=`<div class="tcheck${t.done?' on':''}"></div><div class="ttext">${t.text}</div>`;
+    div.onclick=()=>{t.done=!t.done;div.classList.toggle('done',t.done);div.querySelector('.tcheck').classList.toggle('on',t.done);S.set('startup_tasks',stored);};
+    el.appendChild(div);
+  });
+}
+
+// ─── IDEAS ───
+function initIdeas() {
+  const ideas = S.get('ideas',[
+    {title:'Agencia IA para PYMEs',desc:'Implementar Claude/GPT en negocios locales. Setup €500-2k + €150/mes.',tags:['B2B','IA','España'],status:'activa'},
+    {title:'APEX OS como SaaS',desc:'Lo que tú usas → producto para universitarios con trabajo. €9/mes × 1000 users.',tags:['SaaS','B2C','EdTech'],status:'idea'},
+  ]);
+  const el=document.getElementById('ideas-list');if(!el)return;
+  el.innerHTML='';
+  ideas.forEach(idea=>{
+    const div=document.createElement('div');
+    div.style.cssText='background:var(--s2);border:1px solid var(--b0);border-radius:11px;padding:12px;margin-bottom:8px';
+    div.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><div style="font-size:13px;font-weight:500;flex:1">${idea.title}</div><span class="pill" style="background:${idea.status==='activa'?'rgba(255,179,110,.12)':'rgba(184,168,255,.1)'};color:${idea.status==='activa'?'var(--o)':'var(--p)'}">${idea.status}</span></div><div style="font-size:11px;color:var(--t1);line-height:1.55;margin-bottom:7px">${idea.desc}</div><div style="display:flex;gap:4px;flex-wrap:wrap">${idea.tags.map(t=>`<span class="pill" style="background:var(--s3);border:1px solid var(--b0);color:var(--t2)">${t}</span>`).join('')}</div>`;
+    el.appendChild(div);
+  });
+}
+
+function addIdea() {
+  const t=prompt('Nombre de la idea:','');if(!t)return;
+  const d=prompt('Descríbela en una línea:','');
+  const ideas=S.get('ideas',[]);
+  ideas.push({title:t,desc:d||'En desarrollo...',tags:['Nueva'],status:'idea'});
+  S.set('ideas',ideas);initIdeas();
+}
+
+// ─── OBJETIVOS ───
+const OBJ_DEF = [
+  {icon:'🚀',name:'Primer €1k MRR',date:'Septiembre 2025',desc:'Agencia IA: 3 clientes × €300-400/mes.',pct:0,color:'var(--o)'},
+  {icon:'📚',name:'Aprobar los 3 exámenes',date:'Última semana mayo',desc:'Nota mínima objetivo: 7 en todos.',pct:40,color:'var(--p)'},
+  {icon:'💪',name:'Racha gym 30 días',date:'Mayo 2025',desc:'Sin saltarse ningún día antes del trabajo.',pct:65,color:'var(--g)'},
+  {icon:'✦',name:'Certificación Claude',date:'Sin deadline · A tu ritmo',desc:'Módulos 3-6 completados.',pct:33,color:'var(--o)'},
+];
+
+function initObjetivos() {
+  const stored = S.get('objetivos', OBJ_DEF);
+  const el=document.getElementById('obj-list');if(!el)return;
+  el.innerHTML='';
+  stored.forEach((obj,i)=>{
+    const div=document.createElement('div');
+    div.className='obj-card';
+    div.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-size:16px">${obj.icon}</span><div style="flex:1"><div class="obj-name">${obj.name}</div><div class="obj-date">${obj.date}</div></div><button style="font-size:10px;color:var(--t2);border:1px solid var(--b0);background:transparent;padding:2px 7px;border-radius:6px;font-family:var(--fm);cursor:pointer" onclick="editObj(${i})">editar</button></div><div style="font-size:11px;color:var(--t1);margin-bottom:8px">${obj.desc}</div><div class="obj-bar"><div class="obj-fill" style="width:${obj.pct}%;background:${obj.color}"></div></div><div class="obj-foot"><div class="obj-pct">${obj.pct}%</div><input type="range" min="0" max="100" value="${obj.pct}" oninput="updObj(${i},this)" style="flex:1"></div>`;
+    el.appendChild(div);
+  });
+}
+
+function updObj(i,slider){
+  const v=Math.round(slider.value);
+  const objs=S.get('objetivos',OBJ_DEF);objs[i].pct=v;S.set('objetivos',objs);
+  const fill=slider.closest('.obj-card').querySelector('.obj-fill');
+  const pct=slider.closest('.obj-card').querySelector('.obj-pct');
+  if(fill)fill.style.width=v+'%';if(pct)pct.textContent=v+'%';
+}
+
+function editObj(i){
+  const objs=S.get('objetivos',OBJ_DEF);
+  const n=prompt('Nombre del objetivo:',objs[i].name);if(!n)return;
+  const d=prompt('Fecha objetivo:',objs[i].date);
+  objs[i].name=n;objs[i].date=d||objs[i].date;
+  S.set('objetivos',objs);initObjetivos();
+}
+
+function addObjetivo(){
+  const n=prompt('Nombre del objetivo:','');if(!n)return;
+  const d=prompt('Fecha target:','');
+  const objs=S.get('objetivos',OBJ_DEF);
+  objs.push({icon:'🎯',name:n,date:d||'Por definir',desc:'',pct:0,color:'var(--p)'});
+  S.set('objetivos',objs);initObjetivos();
+}
+
+// ─── CEO HABITS ───
+const CEO_HABITS = [
+  {who:'Elon Musk · Tesla, SpaceX',quote:'"Work like hell. Every waking hour is potential."',task:'Time-blocking sagrado. Sin reuniones innecesarias. Feedback loops ultrarrápidos.',check:'Time-blocking hoy — bloques sagrados sin interrupciones'},
+  {who:'Jeff Bezos · Amazon',quote:'"I do my high-IQ meetings before noon. Sleep 8 hours."',task:'Las decisiones importantes por la mañana. 8h de sueño. Escribe antes de reunirte.',check:'Tarea difícil → primera hora de estudio post-gym'},
+  {who:'Alex Hormozi · Acquisition.com',quote:'"Speed of implementation separates winners from losers."',task:'Actúa el mismo día. Aprende en público. Genera valor antes de pedir dinero.',check:'Documentar 1 idea o acción de startup hoy'},
+  {who:'Naval Ravikant · AngelList',quote:'"Read what you love. Skills compound over decades."',task:'Lee 1h al día. Construye combinaciones únicas de habilidades. Conocimiento + leverage.',check:'30 páginas de lectura hoy'},
+  {who:'Sam Altman · OpenAI',quote:'"Compounding is magic. Pick the right thing to work on."',task:'Trabaja en lo que tiene mayor impacto compuesto a largo plazo. IA + datos = multiplicador.',check:'Avanzar en certificación IA hoy'},
+  {who:'Tim Cook · Apple',quote:'"I wake at 3:45am. The morning belongs to me."',task:'Madrugón estratégico. Gym sagrado cada día. Disciplina física = disciplina mental.',check:'Gym hecho antes del trabajo ✓ — ya eres Tim Cook'},
+];
+
+function initCEOHabits() {
+  const el=document.getElementById('ceo-habits-list');if(!el)return;
+  el.innerHTML='';
+  const stored=S.get('ceo_habits',Array(CEO_HABITS.length).fill(false));
+  CEO_HABITS.forEach((h,i)=>{
+    const div=document.createElement('div');div.className='ceo-item';
+    div.innerHTML=`<div class="ceo-who">${h.who}</div><div class="ceo-quote">${h.quote}</div><div class="ceo-task-txt">${h.task}</div><div class="titem${stored[i]?' done':''}" onclick="tglCEO(${i},this)"><div class="tcheck${stored[i]?' on':''}"></div><div class="ttext">${h.check}</div></div>`;
+    el.appendChild(div);
+  });
+}
+
+function tglCEO(i,item){
+  const stored=S.get('ceo_habits',Array(CEO_HABITS.length).fill(false));
+  stored[i]=!stored[i];item.classList.toggle('done',stored[i]);
+  item.querySelector('.tcheck').classList.toggle('on',stored[i]);
+  S.set('ceo_habits',stored);
+}
+
+// ─── CERTS ───
+const CERTS=[
+  {icon:'✦',name:'Anthropic — Certificación Claude',org:'En curso · Sin deadline · Tu prioridad',color:'var(--o)',pct:33,
+   tasks:['Módulo 1: Fundamentos ✓','Módulo 2: Prompting avanzado ✓','Módulo 3: API y tools','Módulo 4: Agentes','Módulo 5: Casos reales','Módulo 6: Examen final'],
+   done:[true,true,false,false,false,false]},
+  {icon:'📊',name:'Google Data Analytics',org:'Coursera · Post-exámenes · 6 meses',color:'var(--b)',pct:0,
+   tasks:['Foundations of Data','SQL para análisis','Tableau / R básico','Proyecto final'],
+   done:[false,false,false,false]},
+];
+
+// old initCerts removed
+// initCerts replaced by initAnthropicCerts
+
+function tglCertItem(key,ti,item,total){
+  const defaults=Array(total).fill(false);
+  const stored=S.get(key,defaults);
+  stored[ti]=!stored[ti];
+  item.classList.toggle('done',stored[ti]);
+  item.querySelector('.tcheck').classList.toggle('on',stored[ti]);
+  S.set(key,stored);
+  // update bar only
+  const ci=CERTS.findIndex(c=>c.key===key);
+  if(ci>-1){
+    const pct=Math.round(stored.filter(Boolean).length/stored.length*100);
+    const fill=document.getElementById('certfill_'+ci);
+    if(fill)fill.style.width=pct+'%';
+  }
+}
+
+// ─── UPDATED SYS_ENG ───
+const SYS_ENG_NEW=`You are Luis's personal English coach. He's Spanish, 39, B2 level targeting C1. Focus: speaking fluency, natural conversation, business/startup vocabulary, pronunciation. 
+Rules: Correct mistakes naturally mid-conversation (don't list every error). After each response, give 1 specific improvement tip. Use realistic business/startup scenarios. Teach pronunciation with phonetic guides when relevant. Max 150 words per response. Mix Spanish only when essential to explain grammar.`;
+
+// ─── INIT ───
+function init(){
+  initDates();
+  initTodos();
+  initHabits();
+  initAgendaHoy();
+  renderPlan();
+  initRALists();
+  initStartupTasks();
+  initIdeas();
+  initObjetivos();
+  initCEOHabits();
+  initAnthropicCerts();
+  initParejaTasks();
+  renderSavedEvents();
+  showQ();
+  showPhrase();
+  initAfirmaciones();
+  initReferentes();
+  renderGramQ();
+  renderScenario();
+  renderVocab();
+  renderSavedVocab();
+}
+
+// ─── SEND MESSAGES ───
+function sendMain(){
+  const inp=document.getElementById('ai-inp');
+  if(!inp) return;
+  const msg=inp.value.trim();
+  if(!msg) return;
+  inp.value='';
+  addUsr(msg,'ai-msgs');
+  callAPI(msg,SYS,mainH,'ai-msgs','ai-send');
+}
+
+function sendEng(){
+  const inp=document.getElementById('eng-inp');
+  if(!inp) return;
+  const msg=inp.value.trim();
+  if(!msg) return;
+  inp.value='';
+  addUsr(msg,'eng-msgs');
+  callAPI(msg,SYS_ENG_COACH,engH,'eng-msgs','eng-send');
+}
+
+function askAI(msg){
+  goPage('asistente');
+  setTimeout(()=>{
+    addUsr(msg,'ai-msgs');
+    callAPI(msg,SYS,mainH,'ai-msgs','ai-send');
+  },100);
+}
+
+function loadNews(topic){
+  const newsSys='Eres un periodista de briefings ejecutivos para CEOs. 4-5 noticias numeradas, 2 lineas cada una, tono directo. En español. Sin introducción.';
+  addUsr(topic,'news-msgs');
+  callAPI(topic,newsSys,[],'news-msgs',null);
+}
+// ─── GYM MODAL ───
+function openGym(){
+  const m=document.getElementById('gym-modal');
+  const f=document.getElementById('gym-frame');
+  if(f && f.src==='') f.src='https://luislpzrm-sketch.github.io/luisprep/';
+  if(m) m.classList.add('open');
+}
+function closeGym(){
+  const m=document.getElementById('gym-modal');
+  if(m) m.classList.remove('open');
+}
+
+// ─── ENGLISH TABS ───
+function engtab(id,btn){
+  ['speaking','vocab','grammar','practica'].forEach(t=>{
+    const el=document.getElementById('eng-'+t);
+    if(el) el.classList.toggle('on',t===id);
+  });
+  if(btn && btn.closest) {
+    btn.closest('.tabs').querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+  }
+}
+
+function showEngTab(id){
+  ['speaking','vocab','grammar','practica'].forEach(t=>{
+    const el=document.getElementById('eng-'+t);
+    if(el) el.classList.toggle('on',t===id);
+  });
+  const engSec=document.getElementById('dev-ingles');
+  if(engSec){
+    const tabs=engSec.querySelectorAll('.tabs:first-of-type .tab');
+    const ids=['speaking','vocab','grammar','practica'];
+    tabs.forEach((b,i)=>b.classList.toggle('on',ids[i]===id));
+  }
+}
+
+// ─── SCENARIOS ───
+const SCENARIOS=[
+  {title:'Presentar tu startup a un inversor',desc:'Explica tu idea en 60 segundos. Problema, cliente, por qué tú.',level:'B2',
+   prompt:"You are a potential investor. Ask Luis about his AI agency startup. Be curious but skeptical. Ask about the problem he solves, target clients, revenue model, and why he is the right person. Correct his English naturally as you go."},
+  {title:'Reunión de trabajo en inglés',desc:'Cliente internacional. Presenta el progreso del proyecto.',level:'B2',
+   prompt:"You are an international client in a business meeting. Luis is presenting project progress. Ask questions, request clarifications, push back on timelines. Correct his English naturally."},
+  {title:'Entrevista de trabajo tech',desc:'Developer con IA en empresa internacional.',level:'B2-C1',
+   prompt:"You are a technical interviewer for a senior AI developer role. Interview Luis professionally. Ask about his experience, AI knowledge and problem-solving skills. Give English feedback at the end."},
+  {title:'Networking en un evento',desc:'Evento de startups. 5 minutos para conectar.',level:'B2',
+   prompt:"You are a founder at a startup event. Have a natural networking conversation with Luis. Talk about your projects and exchange ideas. Correct his English if he makes mistakes."},
+  {title:'Pitch a un cliente PYME',desc:'Llamas a un restaurante para ofrecerles IA.',level:'C1',
+   prompt:"You are the owner of a busy restaurant. Luis is cold-calling to pitch AI automation services. Be skeptical but open. Ask hard questions about ROI and implementation. Correct his English."},
+  {title:'Conversación casual con nativo',desc:'Compañero americano en el descanso del trabajo.',level:'B2',
+   prompt:"You are an American coworker having a casual lunch break chat with Luis. Talk about weekend plans, hobbies, news. Be natural and friendly. Gently correct any unnatural English."},
+];
+let scenarioIdx=0;
+
+function nextScenario(){scenarioIdx=(scenarioIdx+1)%SCENARIOS.length;renderScenario();}
+
+function renderScenario(){
+  const s=SCENARIOS[scenarioIdx];
+  const el=document.getElementById('scenario-display');
+  if(!el) return;
+  el.innerHTML=`<div style="background:var(--s2);border-radius:10px;padding:13px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><div style="font-size:13px;font-weight:500;flex:1">${s.title}</div><span class="pill" style="background:rgba(184,168,255,.1);color:var(--p)">${s.level}</span></div><div style="font-size:11px;color:var(--t1)">${s.desc}</div></div>`;
+}
+
+function practiceScenario(){
+  const s=SCENARIOS[scenarioIdx];
+  showEngTab('practica');
+  setTimeout(()=>{
+    addUsr('Escenario: '+s.title,'eng-msgs');
+    callAPI(s.prompt+' Start with a natural opening line in English.',SYS_ENG_COACH,engH,'eng-msgs','eng-send');
+  },200);
+}
+
+function askEngAI(msg){
+  showEngTab('practica');
+  setTimeout(()=>{
+    addUsr(msg,'eng-msgs');
+    callAPI(msg,SYS_ENG_COACH,engH,'eng-msgs','eng-send');
+  },200);
+}
+
+// ─── VOCABULARY ───
+const VOCAB_WORDS=[
+  {word:'Leverage',pron:'/ˈlevərɪdʒ/',def:'Usar algo para conseguir ventaja o maximizar resultados.',example:"We need to leverage our AI expertise to win this client.",tags:['Business','Startup']},
+  {word:'Scalable',pron:'/ˈskeɪləbl/',def:'Que puede crecer sin aumentar costes proporcionalmente.',example:"The beauty of SaaS is that it is completely scalable.",tags:['Tech','Startup']},
+  {word:'Streamline',pron:'/ˈstriːmlaɪn/',def:'Simplificar y hacer más eficiente un proceso.',example:"We can streamline their invoicing with a simple AI agent.",tags:['Business','Ops']},
+  {word:'Bottleneck',pron:'/ˈbɒtlnek/',def:'El punto más lento que limita el rendimiento total.',example:"The bottleneck in their workflow is manual data entry.",tags:['Business','Tech']},
+  {word:'Onboard',pron:'/ˈɒnbɔːd/',def:'Incorporar a alguien al sistema o empresa.',example:"It takes about 2 hours to onboard a new client.",tags:['Business','Startup']},
+  {word:'Pitch',pron:'/pɪtʃ/',def:'Presentación breve y persuasiva de una idea.',example:"I need to practice my pitch before the meeting.",tags:['Startup','Speaking']},
+  {word:'Bandwidth',pron:'/ˈbændwɪdθ/',def:'Capacidad disponible de tiempo o recursos.',example:"I do not have the bandwidth for another project this week.",tags:['Business','Informal']},
+  {word:'Iterate',pron:'/ˈɪtəreɪt/',def:'Mejorar algo paso a paso a través de versiones.',example:"We will launch a basic version and iterate based on feedback.",tags:['Tech','Startup']},
+  {word:'Churn',pron:'/tʃɜːn/',def:'Tasa de clientes que cancelan el servicio.',example:"Our churn rate is 5% monthly, we need to fix retention.",tags:['Business','SaaS']},
+  {word:'Compelling',pron:'/kəmˈpelɪŋ/',def:'Convincente, que llama poderosamente la atención.',example:"You need a more compelling value proposition for clients.",tags:['Speaking','B2-C1']},
+];
+let vocabIdx=0;
+
+function nextVocab(){vocabIdx=(vocabIdx+1)%VOCAB_WORDS.length;renderVocab();}
+
+function renderVocab(){
+  const v=VOCAB_WORDS[vocabIdx];
+  const el=document.getElementById('vocab-display');
+  if(!el) return;
+  el.innerHTML=`<div style="background:var(--s2);border-radius:11px;padding:14px"><div style="font-size:20px;font-weight:500;margin-bottom:3px;font-family:var(--fd)">${v.word}</div><div style="font-family:var(--fm);font-size:12px;color:var(--p);margin-bottom:4px">${v.pron}</div><div style="font-size:12px;color:var(--t1);margin-bottom:6px;line-height:1.5">${v.def}</div><div style="font-size:11px;color:var(--t2);font-style:italic;border-left:2px solid var(--p);padding-left:8px">${v.example}</div><div style="display:flex;gap:5px;margin-top:8px;flex-wrap:wrap">${v.tags.map(t=>`<span class="pill" style="background:var(--s3);border:1px solid var(--b0);color:var(--t2)">${t}</span>`).join('')}</div></div>`;
+}
+
+function addVocabWord(){
+  const w=prompt('Palabra en inglés:','');
+  if(!w) return;
+  const d=prompt('Significado en español:','');
+  const e=prompt('Ejemplo de uso en inglés:','');
+  const saved=S.get('vocab_saved',[]);
+  saved.push({word:w,pron:'',def:d||'',example:e||'',tags:['Mía']});
+  S.set('vocab_saved',saved);
+  renderSavedVocab();
+}
+
+function renderSavedVocab(){
+  const saved=S.get('vocab_saved',[]);
+  const el=document.getElementById('vocab-saved');
+  if(!el) return;
+  if(saved.length===0){
+    el.innerHTML='<div style="font-size:11px;color:var(--t2);text-align:center;padding:16px">Añade palabras que quieras recordar</div>';
+    return;
+  }
+  el.innerHTML=saved.map(v=>`<div style="background:var(--s2);border-radius:10px;padding:12px;margin-bottom:6px"><div style="font-size:15px;font-weight:500;margin-bottom:4px">${v.word}</div><div style="font-size:11px;color:var(--t1);margin-bottom:3px">${v.def}</div><div style="font-size:11px;color:var(--t2);font-style:italic">${v.example}</div></div>`).join('');
+}
+
+// ─── CERTS (Anthropic Academy) ───
+const ANTHROPIC_CERTS=[
+  {icon:'✦',name:'Claude 101',org:'Anthropic Academy - Tu primera certificación',url:'https://anthropic.skilljar.com/claude-101',color:'var(--o)',key:'cert_claude101',
+   tasks:['Introducción a Claude y sus capacidades','Cómo interactuar eficazmente con Claude','Mejores prácticas y casos de uso reales','Evaluación final - Obtener certificado']},
+  {icon:'🤖',name:'AI Fluency: Framework and Foundations',org:'Anthropic Academy - Para todos los niveles',url:'https://anthropic.skilljar.com/ai-fluency',color:'var(--p)',key:'cert_aifluency',
+   tasks:['Cómo funcionan los modelos de IA','Límites y capacidades reales','Cuándo delegar y cuándo no','Marco 4E: Effective, Efficient, Ethical, Safe']},
+  {icon:'🔧',name:'Building with the Claude API',org:'Anthropic Academy - Nivel técnico',url:'https://anthropic.skilljar.com/building-with-the-claude-api',color:'var(--b)',key:'cert_api',
+   tasks:['Autenticación y configuración inicial','Formato de mensajes y streaming','Tool use y function calling','Buenas prácticas en producción']},
+  {icon:'⚡',name:'Introduction to Agent Skills',org:'Anthropic Academy - Agentes IA',url:'https://anthropic.skilljar.com/introduction-to-agent-skills',color:'var(--g)',key:'cert_agents',
+   tasks:['Qué son los Agent Skills','Arquitectura y configuración','Desarrollo de Skills reutilizables','Despliegue y mejores prácticas']},
+  {icon:'🔗',name:'Intro to Model Context Protocol',org:'Anthropic Academy - MCP',url:'https://anthropic.skilljar.com/intro-to-model-context-protocol',color:'var(--pk)',key:'cert_mcp',
+   tasks:['Qué es MCP y por qué importa','Tools, Resources y Prompts','Construir servidor MCP en Python','Testing y debugging con MCP Inspector']},
+];
+
+function initAnthropicCerts(){
+  const el=document.getElementById('certs-list');
+  if(!el) return;
+  el.innerHTML='';
+  ANTHROPIC_CERTS.forEach((cert,ci)=>{
+    const defaults=cert.tasks.map(()=>false);
+    const stored=S.get(cert.key,defaults);
+    const pct=Math.round(stored.filter(Boolean).length/stored.length*100);
+    const wrap=document.createElement('div');
+    wrap.style.cssText='background:var(--s2);border:1px solid var(--b0);border-radius:11px;padding:13px;margin-bottom:8px';
+    const header=document.createElement('div');
+    header.style.cssText='display:flex;align-items:center;gap:9px;margin-bottom:8px';
+    header.innerHTML=`<div style="width:32px;height:32px;border-radius:7px;background:rgba(255,179,110,.1);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${cert.icon}</div><div style="flex:1"><div style="font-size:12px;font-weight:500">${cert.name}</div><div style="font-size:10px;color:var(--t2);font-family:var(--fm)">${cert.org}</div></div><a href="${cert.url}" target="_blank" style="font-size:10px;color:${cert.color};text-decoration:none;flex-shrink:0;border:1px solid ${cert.color};padding:3px 8px;border-radius:6px;opacity:.7">Abrir</a>`;
+    wrap.appendChild(header);
+    const barWrap=document.createElement('div');
+    barWrap.className='mbar';barWrap.style.marginBottom='10px';
+    const barFill=document.createElement('div');
+    barFill.className='mfill';barFill.style.cssText=`width:${pct}%;background:${cert.color}`;
+    barWrap.appendChild(barFill);wrap.appendChild(barWrap);
+    cert.tasks.forEach((t,ti)=>{
+      const item=document.createElement('div');
+      item.className='titem'+(stored[ti]?' done':'');
+      item.style.marginBottom='5px';
+      item.innerHTML=`<div class="tcheck${stored[ti]?' on':''}"></div><div class="ttext">${t}</div>`;
+      item.onclick=()=>{
+        stored[ti]=!stored[ti];
+        item.classList.toggle('done',stored[ti]);
+        item.querySelector('.tcheck').classList.toggle('on',stored[ti]);
+        S.set(cert.key,stored);
+        const newPct=Math.round(stored.filter(Boolean).length/stored.length*100);
+        barFill.style.width=newPct+'%';
+      };
+      wrap.appendChild(item);
+    });
+    el.appendChild(wrap);
+  });
+}
+
+// ─── ENGLISH AI SYSTEM ───
+const SYS_ENG_COACH=`You are Luis's personal English coach. He is Spanish, 39, B2 level targeting C1. Focus on speaking fluency, natural conversation, business and startup vocabulary, pronunciation. Correct mistakes naturally mid-conversation. After each response give 1 specific tip. Use realistic business scenarios. Teach pronunciation with phonetic guides when relevant. Max 150 words per response.`;
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+<!-- GYM MODAL -->
+<div class="gym-modal" id="gym-modal">
+  <div class="gym-bar">
+    <button class="gym-back" onclick="closeGym()">← Volver a APEX</button>
+    <div style="font-size:13px;font-weight:500;color:var(--t1);margin-left:8px">Entrenador Personal</div>
+    <a href="https://luislpzrm-sketch.github.io/luisprep/" target="_blank" style="margin-left:auto;font-size:11px;color:var(--p);text-decoration:none">Abrir completo ↗</a>
+  </div>
+  <iframe class="gym-frame" id="gym-frame" src="" loading="lazy" allow="storage-access"></iframe>
+</div>
+</body>
+</html>
