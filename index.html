@@ -271,6 +271,47 @@ select.finput option{background:#1a1a24}
 .conv-title{font-size:13px;font-weight:500;margin-bottom:3px}
 .conv-desc{font-size:11px;color:var(--t1)}
 .conv-level{font-size:9px;font-family:var(--fm);padding:2px 7px;border-radius:100px;margin-left:auto}
+
+/* ─── CALENDAR ─── */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.cal-head{text-align:center;font-size:9px;font-family:var(--fm);color:var(--t2);padding:6px 2px;letter-spacing:.05em}
+.cal-day{min-height:52px;border-radius:8px;padding:5px;border:1px solid var(--b0);background:var(--s1);cursor:pointer;transition:all .15s;position:relative}
+.cal-day:active{background:var(--s2)}
+.cal-day.today{border-color:var(--p);background:rgba(184,168,255,.06)}
+.cal-day.other-month{opacity:.3}
+.cal-day.has-events{border-color:var(--b1)}
+.cal-day-num{font-size:11px;font-family:var(--fm);color:var(--t1);margin-bottom:3px}
+.cal-day.today .cal-day-num{color:var(--p);font-weight:500}
+.cal-dot{width:5px;height:5px;border-radius:50%;display:inline-block;margin:1px}
+.cal-event-pill{font-size:9px;border-radius:4px;padding:1px 5px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+
+.week-row{display:grid;grid-template-columns:48px 1fr;gap:0;min-height:44px;border-bottom:1px solid var(--b0)}
+.week-row:last-child{border-bottom:none}
+.week-time-lbl{font-family:var(--fm);font-size:9px;color:var(--t2);padding:5px 8px;display:flex;align-items:flex-start;justify-content:flex-end;padding-top:8px}
+.week-day-col{display:grid;grid-template-columns:repeat(7,1fr);gap:0}
+.week-cell{border-left:1px solid var(--b0);padding:3px;min-height:44px}
+.week-cell.today-col{background:rgba(184,168,255,.03)}
+.week-event{border-radius:5px;padding:3px 6px;font-size:10px;font-weight:500;margin-bottom:2px;cursor:pointer}
+.week-hdr{display:grid;grid-template-columns:48px 1fr;margin-bottom:2px}
+.week-hdr-days{display:grid;grid-template-columns:repeat(7,1fr)}
+.week-hdr-day{text-align:center;font-size:10px;font-family:var(--fm);padding:6px 2px;border-left:1px solid var(--b0)}
+.week-hdr-day.today-hdr{color:var(--p);font-weight:500}
+
+.ev-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--b0)}
+.ev-item:last-child{border-bottom:none}
+.ev-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.ev-title{font-size:13px;font-weight:500}
+.ev-meta{font-size:11px;color:var(--t1);font-family:var(--fm)}
+.ev-del{margin-left:auto;font-size:10px;color:var(--t2);cursor:pointer;padding:2px 7px;border:1px solid var(--b0);border-radius:6px;background:transparent;font-family:var(--fm);flex-shrink:0}
+.ev-del:active{color:var(--r);border-color:var(--r)}
+
+/* STUDY LOG */
+.study-log-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--b0)}
+.study-log-item:last-child{border-bottom:none}
+.study-date{font-family:var(--fm);font-size:10px;color:var(--t2);min-width:48px}
+.study-bar-wrap{flex:1;height:6px;background:var(--b0);border-radius:3px;overflow:hidden}
+.study-bar-fill{height:100%;border-radius:3px;background:var(--p);transition:width .4s ease}
+.study-hours{font-family:var(--fm);font-size:10px;color:var(--t1);min-width:28px;text-align:right}
 </style>
 </head>
 <body>
@@ -314,6 +355,21 @@ select.finput option{background:#1a1a24}
     <div class="card">
       <div class="card-hd">Agenda hoy</div>
       <div class="tl" id="agenda-hoy"></div>
+    </div>
+    <div class="card">
+      <div class="card-hd">Registro de estudio hoy <span id="study-today-label" style="color:var(--p);font-size:10px"></span></div>
+      <div style="font-size:11px;color:var(--t1);margin-bottom:10px">¿Cuánto has estudiado hoy? Mueve el slider — no tienes que marcar nada si no lo has hecho.</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        <span style="font-size:11px;color:var(--t2);font-family:var(--fm)">0h</span>
+        <input type="range" min="0" max="3" step="0.25" value="0" id="study-slider" style="flex:1;accent-color:var(--p)" oninput="updateStudyLog(this.value)">
+        <span style="font-size:11px;color:var(--t2);font-family:var(--fm)">3h</span>
+      </div>
+      <div style="text-align:center;font-family:var(--fd);font-size:22px;color:var(--p);margin-bottom:6px" id="study-slider-val">0h</div>
+      <button class="qb" style="width:100%;text-align:center" onclick="saveStudyLog()">Guardar registro de hoy</button>
+    </div>
+    <div class="card">
+      <div class="card-hd">Estudio esta semana</div>
+      <div id="study-week-log"></div>
     </div>
   </div>
 
@@ -558,27 +614,66 @@ select.finput option{background:#1a1a24}
       <button class="tab" onclick="vidatab('mundo',this)">Mundo</button>
     </div>
     <div class="tsec on" id="vd-agenda">
-      <div class="card">
-        <div class="card-hd">Próximos compromisos</div>
-        <div class="ag-ev"><div class="ag-time">Vie 18:30</div><div class="ag-dot" style="background:var(--b)"></div><div><div class="ag-title">Psicólogo</div><div class="ag-sub">Semanal · No mover</div><div class="reminder">⏰ Cada viernes</div></div></div>
-        <div class="ag-ev"><div class="ag-time">May 25</div><div class="ag-dot" style="background:var(--p)"></div><div><div class="ag-title">Examen Prog. Multimedia</div><div class="ag-sub">8:00h · 5 RA tipo test</div></div></div>
-        <div class="ag-ev"><div class="ag-time">May 26</div><div class="ag-dot" style="background:var(--o)"></div><div><div class="ag-title">Examen Gestión Empresarial</div><div class="ag-sub">8:00h · 5 RA tipo test</div></div></div>
-        <div class="ag-ev"><div class="ag-time">May 29</div><div class="ag-dot" style="background:var(--g)"></div><div><div class="ag-title">Examen Prog. Servicios</div><div class="ag-sub">8:00h · 5 RA tipo test</div></div></div>
-        <div class="ag-ev" style="border:none"><div class="ag-time">Jun 1</div><div class="ag-dot" style="background:var(--g)"></div><div><div class="ag-title">Modo Startup</div><div class="ag-sub">Post-exámenes · A por ello</div></div></div>
+      <!-- CALENDAR TABS -->
+      <div class="tabs" style="margin-bottom:14px">
+        <button class="tab on" onclick="caltab('week',this)">Semana</button>
+        <button class="tab" onclick="caltab('month',this)">Mes</button>
+        <button class="tab" onclick="caltab('events',this)">Añadir evento</button>
       </div>
-      <div class="card">
-        <div class="card-hd">Añadir evento <button class="card-act" onclick="document.getElementById('ev-t').focus()">+ Nuevo</button></div>
-        <input id="ev-t" class="finput" placeholder="Título del evento...">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px">
-          <input id="ev-w" class="finput" style="margin-bottom:0" placeholder="Cuándo...">
-          <select id="ev-tp" class="finput" style="margin-bottom:0"><option>Personal</option><option>Trabajo</option><option>Salud</option><option>Estudio</option><option>Pareja</option></select>
+
+      <!-- WEEKLY CALENDAR -->
+      <div class="tsec on" id="cal-week">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <button class="qb" onclick="weekNav(-1)">← Anterior</button>
+          <div style="font-size:13px;font-weight:500" id="week-title">Semana actual</div>
+          <button class="qb" onclick="weekNav(1)">Siguiente →</button>
         </div>
-        <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--t1);cursor:pointer;margin-bottom:10px"><input type="checkbox" id="ev-r"> Recordatorio 30min antes</label>
-        <button class="qb" onclick="saveEvento()">Guardar</button>
-        <div id="saved-eventos" style="margin-top:10px"></div>
+        <div id="week-calendar"></div>
+      </div>
+
+      <!-- MONTHLY CALENDAR -->
+      <div class="tsec" id="cal-month">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <button class="qb" onclick="monthNav(-1)">← Anterior</button>
+          <div style="font-size:13px;font-weight:500" id="month-title">Mes actual</div>
+          <button class="qb" onclick="monthNav(1)">Siguiente →</button>
+        </div>
+        <div id="month-calendar"></div>
+      </div>
+
+      <!-- ADD EVENT -->
+      <div class="tsec" id="cal-events">
+        <div class="card">
+          <div class="card-hd">Nuevo evento</div>
+          <input id="ev-title" class="finput" placeholder="Título del evento...">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px">
+            <input id="ev-date" class="finput" style="margin-bottom:0" type="date">
+            <input id="ev-time" class="finput" style="margin-bottom:0" type="time">
+          </div>
+          <select id="ev-cat" class="finput">
+            <option value="psicologo">🧠 Psicólogo</option>
+            <option value="estudio">📚 Estudio</option>
+            <option value="gym">💪 Gym</option>
+            <option value="trabajo">💼 Trabajo</option>
+            <option value="pareja">💑 Pareja</option>
+            <option value="personal">⭐ Personal</option>
+            <option value="medico">🏥 Médico</option>
+            <option value="otro">📌 Otro</option>
+          </select>
+          <input id="ev-notes" class="finput" placeholder="Notas opcionales...">
+          <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--t1);cursor:pointer;margin-bottom:10px">
+            <input type="checkbox" id="ev-reminder"> Recordatorio el día anterior
+          </label>
+          <button class="qb" style="width:100%;text-align:center;padding:10px" onclick="saveCalEvent()">Guardar en calendario</button>
+        </div>
+        <div class="card" style="margin-top:0">
+          <div class="card-hd">Próximos eventos <span id="ev-count" style="color:var(--p)"></span></div>
+          <div id="upcoming-events"></div>
+        </div>
       </div>
     </div>
-    <div class="tsec" id="vd-social">
+
+<div class="tsec" id="vd-social">
       <div class="tabs" style="margin-bottom:12px">
         <button class="tab on" onclick="soctab('general',this)">Social</button>
         <button class="tab" onclick="soctab('pareja',this)">Pareja</button>
@@ -1243,6 +1338,318 @@ function tglCertItem(key,ti,item,total){
 const SYS_ENG_NEW=`You are Luis's personal English coach. He's Spanish, 39, B2 level targeting C1. Focus: speaking fluency, natural conversation, business/startup vocabulary, pronunciation. 
 Rules: Correct mistakes naturally mid-conversation (don't list every error). After each response, give 1 specific improvement tip. Use realistic business/startup scenarios. Teach pronunciation with phonetic guides when relevant. Max 150 words per response. Mix Spanish only when essential to explain grammar.`;
 
+
+// ─── CALENDAR DATA ───
+const CAT_COLORS = {
+  psicologo: {bg:'rgba(110,181,255,.12)', c:'var(--b)', dot:'#6eb5ff', label:'🧠 Psicólogo'},
+  estudio:   {bg:'rgba(184,168,255,.12)', c:'var(--p)', dot:'#b8a8ff', label:'📚 Estudio'},
+  gym:       {bg:'rgba(126,245,192,.12)', c:'var(--g)', dot:'#7ef5c0', label:'💪 Gym'},
+  trabajo:   {bg:'rgba(255,133,179,.1)',  c:'var(--pk)',dot:'#ff85b3', label:'💼 Trabajo'},
+  pareja:    {bg:'rgba(255,133,179,.1)',  c:'var(--pk)',dot:'#ff85b3', label:'💑 Pareja'},
+  personal:  {bg:'rgba(240,208,128,.1)',  c:'var(--y)', dot:'#f0d080', label:'⭐ Personal'},
+  medico:    {bg:'rgba(255,107,107,.1)',  c:'var(--r)', dot:'#ff6b6b', label:'🏥 Médico'},
+  otro:      {bg:'rgba(255,255,255,.06)', c:'var(--t1)',dot:'#ededea', label:'📌 Otro'},
+};
+
+function getEvents() { return S.get('cal_events', []); }
+function saveEvents(evs) { S.set('cal_events', evs); }
+
+function saveCalEvent() {
+  const title = document.getElementById('ev-title').value.trim();
+  const date  = document.getElementById('ev-date').value;
+  const time  = document.getElementById('ev-time').value;
+  const cat   = document.getElementById('ev-cat').value;
+  const notes = document.getElementById('ev-notes').value.trim();
+  const rem   = document.getElementById('ev-reminder').checked;
+  if (!title || !date) { alert('Pon título y fecha'); return; }
+  const evs = getEvents();
+  evs.push({ id: Date.now(), title, date, time, cat, notes, rem });
+  evs.sort((a,b) => a.date.localeCompare(b.date));
+  saveEvents(evs);
+  // clear form
+  document.getElementById('ev-title').value = '';
+  document.getElementById('ev-date').value  = '';
+  document.getElementById('ev-time').value  = '';
+  document.getElementById('ev-notes').value = '';
+  renderUpcoming();
+  renderWeekCalendar();
+  renderMonthCalendar();
+  // show confirmation
+  const btn = document.querySelector('[onclick="saveCalEvent()"]');
+  if(btn) { btn.textContent = '✓ Guardado'; setTimeout(()=>btn.textContent='Guardar en calendario',1500); }
+}
+
+function deleteEvent(id) {
+  const evs = getEvents().filter(e => e.id !== id);
+  saveEvents(evs);
+  renderUpcoming();
+  renderWeekCalendar();
+  renderMonthCalendar();
+}
+
+function renderUpcoming() {
+  const el = document.getElementById('upcoming-events'); if(!el) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayStr = today.toISOString().slice(0,10);
+  const evs = getEvents().filter(e => e.date >= todayStr).slice(0,20);
+  const cnt = document.getElementById('ev-count');
+  if(cnt) cnt.textContent = evs.length ? `(${evs.length})` : '';
+  if(!evs.length) { el.innerHTML='<div style="font-size:12px;color:var(--t2);text-align:center;padding:16px">Sin eventos próximos. Añade uno arriba.</div>'; return; }
+  el.innerHTML = '';
+  evs.forEach(ev => {
+    const cat = CAT_COLORS[ev.cat] || CAT_COLORS.otro;
+    const d = document.createElement('div'); d.className = 'ev-item';
+    const dateObj = new Date(ev.date+'T12:00:00');
+    const dateLabel = dateObj.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+    d.innerHTML = `<div class="ev-dot" style="background:${cat.dot}"></div>
+      <div style="flex:1">
+        <div class="ev-title">${ev.title}</div>
+        <div class="ev-meta">${dateLabel}${ev.time?' · '+ev.time:''}${ev.notes?' · '+ev.notes:''}</div>
+      </div>
+      <button class="ev-del" onclick="deleteEvent(${ev.id})">✕</button>`;
+    el.appendChild(d);
+  });
+}
+
+// ─── WEEKLY CALENDAR ───
+let weekOffset = 0;
+const DAYS_W = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+
+function weekNav(dir) { weekOffset += dir; renderWeekCalendar(); }
+
+function getWeekStart(offset) {
+  const d = new Date(); d.setHours(0,0,0,0);
+  const dow = d.getDay(); // 0=Sun
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - (dow===0?6:dow-1) + offset*7);
+  return monday;
+}
+
+function renderWeekCalendar() {
+  const el = document.getElementById('week-calendar'); if(!el) return;
+  const monday = getWeekStart(weekOffset);
+  const days = [];
+  for(let i=0;i<7;i++) {
+    const d = new Date(monday); d.setDate(monday.getDate()+i);
+    days.push(d);
+  }
+  const titleEl = document.getElementById('week-title');
+  if(titleEl) {
+    const from = days[0].toLocaleDateString('es-ES',{day:'numeric',month:'short'});
+    const to   = days[6].toLocaleDateString('es-ES',{day:'numeric',month:'short'});
+    titleEl.textContent = `${from} — ${to}`;
+  }
+  const today = new Date(); today.setHours(0,0,0,0);
+  const evs = getEvents();
+
+  let html = `<div style="background:var(--s1);border:1px solid var(--b0);border-radius:14px;overflow:hidden">`;
+  // Header
+  html += `<div class="week-hdr"><div style="width:48px"></div><div class="week-hdr-days">`;
+  days.forEach(d => {
+    const isToday = d.getTime()===today.getTime();
+    const label = `${DAYS_W[d.getDay()===0?6:d.getDay()-1]}<br><span style="font-size:11px">${d.getDate()}</span>`;
+    html += `<div class="week-hdr-day${isToday?' today-hdr':''}">${label}</div>`;
+  });
+  html += `</div></div>`;
+
+  // Time slots
+  const slots = [
+    {label:'Mañana', desc:'6–10'},
+    {label:'Trabajo', desc:'10–14'},
+    {label:'Tarde 1', desc:'14–18'},
+    {label:'Tarde 2', desc:'18–21'},
+    {label:'Noche', desc:'21–00'},
+  ];
+
+  // Default blocks by weekday (0=Mon..6=Sun)
+  const defaultBlocks = {
+    0: [{slot:0,cat:'gym'},{slot:1,cat:'trabajo'},{slot:3,cat:'estudio'}],
+    1: [{slot:0,cat:'gym'},{slot:1,cat:'trabajo'},{slot:3,cat:'estudio'}],
+    2: [{slot:0,cat:'gym'},{slot:1,cat:'trabajo'},{slot:3,cat:'estudio'}],
+    3: [{slot:1,cat:'trabajo'},{slot:3,cat:'estudio'}],
+    4: [{slot:0,cat:'gym'},{slot:1,cat:'trabajo'},{slot:3,cat:'estudio'}],
+    5: [{slot:0,cat:'gym'}],
+    6: [],
+  };
+
+  slots.forEach((slot, si) => {
+    html += `<div class="week-row">
+      <div class="week-time-lbl">${slot.desc}</div>
+      <div class="week-day-col">`;
+    days.forEach((d, di) => {
+      const isToday = d.getTime()===today.getTime();
+      const dateStr = d.toISOString().slice(0,10);
+      const dow = d.getDay()===0?6:d.getDay()-1; // 0=Mon
+      const dayEvs = evs.filter(e=>e.date===dateStr);
+      const defaults = (defaultBlocks[dow]||[]).filter(b=>b.slot===si);
+      html += `<div class="week-cell${isToday?' today-col':''}">`;
+      // Default blocks
+      defaults.forEach(b=>{
+        const cat = CAT_COLORS[b.cat];
+        html += `<div class="week-event" style="background:${cat.bg};color:${cat.c}">${cat.label.split(' ').slice(1).join(' ')}</div>`;
+      });
+      // User events for this day that fit this slot (rough mapping by time)
+      dayEvs.forEach(ev=>{
+        const h = ev.time ? parseInt(ev.time.split(':')[0]) : -1;
+        const fits = (si===0&&(h>=6&&h<10))||(si===1&&(h>=10&&h<14))||(si===2&&(h>=14&&h<18))||(si===3&&(h>=18&&h<21))||(si===4&&(h>=21||h<6))||(si===-1&&!ev.time);
+        // If no time, show in slot 3 (evening)
+        const showHere = ev.time ? fits : si===3;
+        if(showHere) {
+          const cat2 = CAT_COLORS[ev.cat]||CAT_COLORS.otro;
+          html += `<div class="week-event" style="background:${cat2.bg};color:${cat2.c}">${ev.title}</div>`;
+        }
+      });
+      html += `</div>`;
+    });
+    html += `</div></div>`;
+  });
+  html += `</div>`;
+  el.innerHTML = html;
+}
+
+// ─── MONTHLY CALENDAR ───
+let monthOffset = 0;
+const MONTH_NAMES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function monthNav(dir) { monthOffset += dir; renderMonthCalendar(); }
+
+function renderMonthCalendar() {
+  const el = document.getElementById('month-calendar'); if(!el) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const base = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+  const year = base.getFullYear(), month = base.getMonth();
+  const titleEl = document.getElementById('month-title');
+  if(titleEl) titleEl.textContent = `${MONTH_NAMES[month]} ${year}`;
+
+  // Days in month
+  const firstDay = new Date(year, month, 1);
+  const lastDay  = new Date(year, month+1, 0);
+  // First monday on/before firstDay
+  const startDow = firstDay.getDay()===0?6:firstDay.getDay()-1;
+  const gridStart = new Date(firstDay); gridStart.setDate(1-startDow);
+
+  const evs = getEvents();
+  let html = `<div style="background:var(--s1);border:1px solid var(--b0);border-radius:14px;overflow:hidden;padding:10px">`;
+  html += `<div class="cal-grid" style="margin-bottom:6px">`;
+  ['L','M','X','J','V','S','D'].forEach(d=>{ html += `<div class="cal-head">${d}</div>`; });
+  html += `</div><div class="cal-grid">`;
+
+  const cur = new Date(gridStart);
+  for(let row=0;row<6;row++) {
+    for(let col=0;col<7;col++) {
+      const dateStr = cur.toISOString().slice(0,10);
+      const isToday = cur.getTime()===today.getTime();
+      const isOther = cur.getMonth()!==month;
+      const dayEvs = evs.filter(e=>e.date===dateStr);
+      let cls = 'cal-day';
+      if(isToday) cls+=' today';
+      if(isOther) cls+=' other-month';
+      if(dayEvs.length) cls+=' has-events';
+      html += `<div class="${cls}" onclick="calDayClick('${dateStr}')">
+        <div class="cal-day-num">${cur.getDate()}</div>`;
+      dayEvs.slice(0,2).forEach(ev=>{
+        const cat = CAT_COLORS[ev.cat]||CAT_COLORS.otro;
+        html += `<div class="cal-event-pill" style="background:${cat.bg};color:${cat.c}">${ev.title}</div>`;
+      });
+      if(dayEvs.length>2) html += `<div style="font-size:9px;color:var(--t2)">+${dayEvs.length-2} más</div>`;
+      html += `</div>`;
+      cur.setDate(cur.getDate()+1);
+    }
+  }
+  html += `</div></div>`;
+  el.innerHTML = html;
+}
+
+function calDayClick(dateStr) {
+  // Switch to add event tab and prefill date
+  caltab('events', document.querySelectorAll('#vd-agenda .tabs .tab')[2]);
+  document.getElementById('ev-date').value = dateStr;
+  document.getElementById('ev-title').focus();
+}
+
+function caltab(id, btn) {
+  ['week','month','events'].forEach(t=>{
+    const el=document.getElementById('cal-'+t);
+    if(el) el.classList.toggle('on', t===id);
+  });
+  if(btn && btn.closest) {
+    btn.closest('.tabs').querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+  }
+  if(id==='week') renderWeekCalendar();
+  if(id==='month') renderMonthCalendar();
+  if(id==='events') renderUpcoming();
+}
+
+// ─── STUDY LOG ───
+function updateStudyLog(val) {
+  const v = parseFloat(val);
+  const el = document.getElementById('study-slider-val');
+  if(el) el.textContent = v===0 ? '0h — sin estudio hoy' : `${v}h de estudio`;
+  const lbl = document.getElementById('study-today-label');
+  if(lbl) lbl.textContent = v>0 ? `${v}h registradas` : '';
+}
+
+function studyTodayKey() {
+  const t=new Date(); return `study_${t.getFullYear()}_${t.getMonth()}_${t.getDate()}`;
+}
+
+function saveStudyLog() {
+  const val = parseFloat(document.getElementById('study-slider').value);
+  S.set(studyTodayKey(), val);
+  renderStudyWeek();
+  const btn = document.querySelector('[onclick="saveStudyLog()"]');
+  if(btn) { btn.textContent='✓ Guardado'; setTimeout(()=>btn.textContent='Guardar registro de hoy',1500); }
+}
+
+function renderStudyWeek() {
+  const el = document.getElementById('study-week-log'); if(!el) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dow = today.getDay()===0?6:today.getDay()-1;
+  const monday = new Date(today); monday.setDate(today.getDate()-dow);
+  const days=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  let html='', totalH=0;
+  for(let i=0;i<7;i++){
+    const d=new Date(monday); d.setDate(monday.getDate()+i);
+    const key=`study_${d.getFullYear()}_${d.getMonth()}_${d.getDate()}`;
+    const h=S.get(key,0)||0;
+    totalH+=h;
+    const isPast=d<=today;
+    const isToday=d.getTime()===today.getTime();
+    const pct=Math.min(100,Math.round(h/3*100));
+    html+=`<div class="study-log-item">
+      <div class="study-date">${days[i]}${isToday?' <span style="color:var(--g);font-size:9px">hoy</span>':''}</div>
+      <div class="study-bar-wrap"><div class="study-bar-fill" style="width:${pct}%"></div></div>
+      <div class="study-hours">${h>0?h+'h':isPast&&!isToday?'—':''}  </div>
+    </div>`;
+  }
+  html+=`<div style="text-align:right;font-size:11px;color:var(--p);font-family:var(--fm);margin-top:8px">Total semana: ${totalH.toFixed(2).replace(/\.00$/,'')}h</div>`;
+  el.innerHTML=html;
+}
+
+function initStudyLog() {
+  const todayVal = S.get(studyTodayKey(), 0) || 0;
+  const slider = document.getElementById('study-slider');
+  if(slider) slider.value = todayVal;
+  updateStudyLog(todayVal);
+  renderStudyWeek();
+}
+
+function initCalendar() {
+  renderWeekCalendar();
+  renderMonthCalendar();
+  renderUpcoming();
+}
+
+// Set today's date as default for event form
+function initEventForm() {
+  const dateInput = document.getElementById('ev-date');
+  if(dateInput) {
+    const today = new Date();
+    dateInput.value = today.toISOString().slice(0,10);
+  }
+}
+
 // ─── INIT ───
 function init(){
   initDates();
@@ -1266,6 +1673,9 @@ function init(){
   renderScenario();
   renderVocab();
   renderSavedVocab();
+  initCalendar();
+  initStudyLog();
+  initEventForm();
 }
 
 // ─── SEND MESSAGES ───
