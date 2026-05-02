@@ -323,6 +323,7 @@ select.finput option{background:#1a1a24}
   <div class="topbar-center" id="topbar-title" style="font-size:12px;color:var(--t2);font-family:var(--fm)">Hoy</div>
   <div class="topbar-right">
     <button class="trainer-btn" onclick="openGym()">💪 Gym</button>
+    <button onclick="toggleSettings()" style="background:transparent;border:1px solid var(--b0);color:var(--t1);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:14px;margin-left:6px" title="Configurar IA">⚙️</button>
   </div>
 </div>
 
@@ -760,7 +761,32 @@ select.finput option{background:#1a1a24}
   <!-- ══ ASISTENTE ══ -->
   <div class="page" id="page-asistente">
     <div class="h1">Asistente APEX</div>
-    <div class="sub">Tu Chief of Staff · Claude · Conoce toda tu situación</div>
+    <div class="sub">Tu Chief of Staff · Agentes especializados · Impulsado por Claude</div>
+
+    <!-- AGENTS GRID -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-hd">Agentes especializados — toca para activar</div>
+      <div id="agents-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"></div>
+    </div>
+
+    <!-- AGENT PANEL -->
+    <div id="agent-panel" style="display:none;flex-direction:column;margin-bottom:12px">
+      <div class="aipanel">
+        <div class="aihdr">
+          <div class="aidot"></div>
+          <div class="ainame" id="agent-title">Agente</div>
+          <button onclick="closeAgent()" style="margin-left:auto;font-size:11px;color:var(--t2);border:1px solid var(--b0);background:transparent;padding:3px 9px;border-radius:7px;cursor:pointer;font-family:var(--fu)">✕ Cerrar</button>
+        </div>
+        <div class="aimsgs" id="agent-msgs" style="min-height:140px;max-height:280px"></div>
+        <div class="aibar">
+          <input class="aiinp" id="agent-inp" placeholder="Responde al agente..." onkeydown="if(event.key==='Enter')sendAgent()">
+          <button class="aisend" id="agent-send" onclick="sendAgent()">↑</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:11px;color:var(--t2);text-align:center;margin-bottom:10px;font-family:var(--fm)">── O habla directamente con APEX ──</div>
+
     <div class="qa">
       <button class="qb" onclick="askAI('Planifícame el lunes: gym antes de las 10, trabajo 10-18, estudio después. Bloques exactos para estudiar los exámenes')">Planificar lunes</button>
       <button class="qb" onclick="askAI('Qué debería estudiar hoy para los exámenes de mayo? Dame las tareas exactas')">¿Qué estudio hoy?</button>
@@ -947,52 +973,51 @@ function initHabits() {
 
 // ─── EXAM PLAN DATA ───
 const PLAN_DATA = [
-  {date:[2025,4,27],day:'Dom',type:'study',label:'Inicio plan · PMM',tasks:[
-    {text:'PMM RA1 — Tecnologías de desarrollo para móviles (Tema 1)',subj:'PMM'},
-    {text:'PMM RA2 — Apps para móviles con librerías específicas (Tema 2)',subj:'PMM'},
+  {date:[2025,5,4],day:'Dom',type:'study',label:'🚀 INICIO PLAN DE ESTUDIO',tasks:[
+    {text:'PMM RA1 — Tecnologías de desarrollo para móviles (Tema 1) · 19:00-20:00',subj:'PMM'},
+    {text:'PMM RA2 — Apps para móviles con librerías específicas (Tema 2) · 20:00-21:00',subj:'PMM'},
   ]},
-  {date:[2025,4,28],day:'Lun',type:'study',label:'Tarde · PMM',tasks:[
-    {text:'PMM RA3 — Programas con contenidos multimedia (Tema 3)',subj:'PMM'},
-    {text:'Repaso rápido PMM RA1 y RA2 · preguntas test',subj:'PMM'},
+  {date:[2025,5,5],day:'Lun',type:'study',label:'Tarde 19-21h · PMM',tasks:[
+    {text:'PMM RA3 — Programas con contenidos multimedia (Tema 3) · 19:00-20:00',subj:'PMM'},
+    {text:'Repaso rápido PMM RA1 y RA2 · preguntas test · 20:00-21:00',subj:'PMM'},
   ]},
-  {date:[2025,4,29],day:'Mar',type:'study',label:'Tarde · PMM',tasks:[
-    {text:'PMM RA4 — Motores de juegos 2D y 3D (Tema 4)',subj:'PMM'},
+  {date:[2025,5,6],day:'Mar',type:'study',label:'Tarde 19-21h · PMM',tasks:[
+    {text:'PMM RA4 — Motores de juegos 2D y 3D (Tema 4) · 19:00-21:00',subj:'PMM'},
   ]},
-  {date:[2025,4,30],day:'Mié',type:'study',label:'Tarde · PMM',tasks:[
-    {text:'PMM RA5 — Desarrolla juegos 2D y 3D (Tema 5)',subj:'PMM'},
+  {date:[2025,5,7],day:'Mié',type:'study',label:'Tarde 19-21h · PMM',tasks:[
+    {text:'PMM RA5 — Desarrolla juegos 2D y 3D (Tema 5) · 19:00-21:00',subj:'PMM'},
   ]},
-  {date:[2025,5,1],day:'Jue',type:'free',label:'Festivo · recarga',tasks:[
-    {text:'Repaso ligero PMM RA3+RA4+RA5 (1h máx)',subj:'PMM'},
+  {date:[2025,5,8],day:'Jue',type:'study',label:'Tarde 19-21h · PMM + SGE',tasks:[
+    {text:'PMM — Repaso completo 5 RA · Simula test mental · 19:00-20:00',subj:'PMM'},
+    {text:'SGE RA1 — Sistemas ERP-CRM características (Tema 1) · 20:00-21:00',subj:'SGE'},
   ]},
-  {date:[2025,5,2],day:'Vie',type:'study',label:'Tarde · cierre PMM + inicio SGE',tasks:[
-    {text:'PMM — Repaso completo 5 RA · Simula test mental',subj:'PMM'},
-    {text:'SGE RA1 — Sistemas ERP-CRM características (Tema 1)',subj:'SGE'},
-  ]},
-  {date:[2025,5,3],day:'Sáb',type:'study',label:'Fin de semana · SGE intensivo',tasks:[
+  {date:[2025,5,9],day:'Vie',type:'study',label:'Tarde · SGE',tasks:[
     {text:'SGE RA2 — Implantación ERP-CRM documentación técnica (Tema 2)',subj:'SGE'},
+  ]},
+  {date:[2025,5,10],day:'Sáb',type:'study',label:'Fin de semana · SGE intensivo',tasks:[
     {text:'SGE RA3 — Operaciones de gestión en ERP-CRM (Tema 3)',subj:'SGE'},
     {text:'Repaso SGE RA1+RA2+RA3',subj:'SGE'},
   ]},
-  {date:[2025,5,4],day:'Dom',type:'study',label:'Fin de semana · SGE cierre',tasks:[
+  {date:[2025,5,11],day:'Dom',type:'study',label:'Fin de semana · SGE cierre',tasks:[
     {text:'SGE RA4 — Adaptación ERP-CRM requerimientos empresa (Tema 4)',subj:'SGE'},
     {text:'SGE RA5 — Componentes para ERP-CRM con programación (Tema 5)',subj:'SGE'},
     {text:'Repaso completo SGE 5 RA',subj:'SGE'},
   ]},
-  {date:[2025,5,5],day:'Lun',type:'study',label:'Tarde · inicio PSP',tasks:[
-    {text:'PSP RA5 — Seguridad en acceso y transmisión (Tema 1)',subj:'PSP'},
-    {text:'PSP RA1 — Procesos paralelos (Tema 2)',subj:'PSP'},
+  {date:[2025,5,12],day:'Lun',type:'study',label:'Tarde 19-21h · inicio PSP',tasks:[
+    {text:'PSP RA5 — Seguridad en acceso y transmisión (Tema 1) · 19:00-20:00',subj:'PSP'},
+    {text:'PSP RA1 — Procesos paralelos (Tema 2) · 20:00-21:00',subj:'PSP'},
   ]},
-  {date:[2025,5,6],day:'Mar',type:'study',label:'Tarde · PSP',tasks:[
-    {text:'PSP RA2 — Hilos de ejecución y librerías (Tema 3)',subj:'PSP'},
+  {date:[2025,5,13],day:'Mar',type:'study',label:'Tarde 19-21h · PSP',tasks:[
+    {text:'PSP RA2 — Hilos de ejecución y librerías (Tema 3) · 19:00-21:00',subj:'PSP'},
   ]},
-  {date:[2025,5,7],day:'Mié',type:'study',label:'Tarde · PSP',tasks:[
-    {text:'PSP RA3 — Comunicación en red con sockets (Tema 4)',subj:'PSP'},
+  {date:[2025,5,14],day:'Mié',type:'study',label:'Tarde 19-21h · PSP',tasks:[
+    {text:'PSP RA3 — Comunicación en red con sockets (Tema 4) · 19:00-21:00',subj:'PSP'},
   ]},
-  {date:[2025,5,8],day:'Jue',type:'study',label:'Tarde · PSP',tasks:[
-    {text:'PSP RA4 — Servicios en red y librerías de eficiencia (Tema 5)',subj:'PSP'},
+  {date:[2025,5,15],day:'Jue',type:'study',label:'Tarde 19-21h · PSP',tasks:[
+    {text:'PSP RA4 — Servicios en red y librerías de eficiencia (Tema 5) · 19:00-21:00',subj:'PSP'},
   ]},
-  {date:[2025,5,9],day:'Vie',type:'study',label:'Tarde · cierre PSP',tasks:[
-    {text:'PSP — Repaso completo 5 RA · Simula test',subj:'PSP'},
+  {date:[2025,5,16],day:'Vie',type:'study',label:'Tarde · cierre PSP',tasks:[
+    {text:'PSP — Repaso completo 5 RA · Simula test · 19:00-21:00',subj:'PSP'},
     {text:'Repaso rápido PMM RA1-RA3 (30min)',subj:'PMM'},
   ]},
   {date:[2025,5,10],day:'Sáb',type:'study',label:'Fin de semana · repaso cruzado',tasks:[
@@ -1335,8 +1360,6 @@ function tglCertItem(key,ti,item,total){
 }
 
 // ─── UPDATED SYS_ENG ───
-const SYS_ENG_NEW=`You are Luis's personal English coach. He's Spanish, 39, B2 level targeting C1. Focus: speaking fluency, natural conversation, business/startup vocabulary, pronunciation. 
-Rules: Correct mistakes naturally mid-conversation (don't list every error). After each response, give 1 specific improvement tip. Use realistic business/startup scenarios. Teach pronunciation with phonetic guides when relevant. Max 150 words per response. Mix Spanish only when essential to explain grammar.`;
 
 
 // ─── CALENDAR DATA ───
@@ -1676,42 +1699,13 @@ function init(){
   initCalendar();
   initStudyLog();
   initEventForm();
+  initAgents();
 }
 
 // ─── SEND MESSAGES ───
-function sendMain(){
-  const inp=document.getElementById('ai-inp');
-  if(!inp) return;
-  const msg=inp.value.trim();
-  if(!msg) return;
-  inp.value='';
-  addUsr(msg,'ai-msgs');
-  callAPI(msg,SYS,mainH,'ai-msgs','ai-send');
-}
 
-function sendEng(){
-  const inp=document.getElementById('eng-inp');
-  if(!inp) return;
-  const msg=inp.value.trim();
-  if(!msg) return;
-  inp.value='';
-  addUsr(msg,'eng-msgs');
-  callAPI(msg,SYS_ENG_COACH,engH,'eng-msgs','eng-send');
-}
 
-function askAI(msg){
-  goPage('asistente');
-  setTimeout(()=>{
-    addUsr(msg,'ai-msgs');
-    callAPI(msg,SYS,mainH,'ai-msgs','ai-send');
-  },100);
-}
 
-function loadNews(topic){
-  const newsSys='Eres un periodista de briefings ejecutivos para CEOs. 4-5 noticias numeradas, 2 lineas cada una, tono directo. En español. Sin introducción.';
-  addUsr(topic,'news-msgs');
-  callAPI(topic,newsSys,[],'news-msgs',null);
-}
 // ─── GYM MODAL ───
 function openGym(){
   const m=document.getElementById('gym-modal');
@@ -1775,22 +1769,7 @@ function renderScenario(){
   el.innerHTML=`<div style="background:var(--s2);border-radius:10px;padding:13px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><div style="font-size:13px;font-weight:500;flex:1">${s.title}</div><span class="pill" style="background:rgba(184,168,255,.1);color:var(--p)">${s.level}</span></div><div style="font-size:11px;color:var(--t1)">${s.desc}</div></div>`;
 }
 
-function practiceScenario(){
-  const s=SCENARIOS[scenarioIdx];
-  showEngTab('practica');
-  setTimeout(()=>{
-    addUsr('Escenario: '+s.title,'eng-msgs');
-    callAPI(s.prompt+' Start with a natural opening line in English.',SYS_ENG_COACH,engH,'eng-msgs','eng-send');
-  },200);
-}
 
-function askEngAI(msg){
-  showEngTab('practica');
-  setTimeout(()=>{
-    addUsr(msg,'eng-msgs');
-    callAPI(msg,SYS_ENG_COACH,engH,'eng-msgs','eng-send');
-  },200);
-}
 
 // ─── VOCABULARY ───
 const VOCAB_WORDS=[
@@ -1890,11 +1869,302 @@ function initAnthropicCerts(){
   });
 }
 
-// ─── ENGLISH AI SYSTEM ───
-const SYS_ENG_COACH=`You are Luis's personal English coach. He is Spanish, 39, B2 level targeting C1. Focus on speaking fluency, natural conversation, business and startup vocabulary, pronunciation. Correct mistakes naturally mid-conversation. After each response give 1 specific tip. Use realistic business scenarios. Teach pronunciation with phonetic guides when relevant. Max 150 words per response.`;
+
+
+// ─── CONSTANTS ───
+const SYS = `Eres APEX, Chief of Staff personal de Luis (Madrid, España, 39 años).
+Datos: universitario + trabaja L-V 10-18 (sáb alternos 10:30-14:30), gym ANTES del trabajo cada día, 3 exámenes última semana mayo (PMM el 25 lunes, SGE el 26 martes, PSP el 29 viernes), certificación Claude sin deadline, startup en junio (agencia IA PYMEs), psicólogo variable cada 1-2 semanas, pareja y vida social protegidas, independencia financiera como objetivo a largo plazo.
+Asignaturas: PMM=Prog.Multimedia Móviles (5 RA, Temas 1-5), SGE=Gestión Empresarial ERP-CRM (5 RA, Temas 1-5), PSP=Prog.Servicios Procesos (5 RA, Temas 1-5). Plan de estudio empieza 4 mayo.
+Eres directo, ejecutivo, sin relleno. Máx 180 palabras. En español. Pasos concretos, no generalidades.`;
+
+const SYS_ENG = `You are Luis's personal English coach. He is Spanish, 39, B2 level targeting C1. Focus on speaking fluency, natural conversation, business and startup vocabulary, pronunciation. Correct mistakes naturally. After each response give 1 specific tip. Max 150 words.`;
+
+const SYS_NEWS = `Eres un periodista de briefings ejecutivos. 4-5 noticias numeradas, 2 líneas cada una, tono directo ejecutivo. En español. Sin introducción ni preamble.`;
+
+const mainH = [], engH = [], newsH = [];
+
+// ─── AI CORE ───
+function addUsr(msg, containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  const m = document.createElement('div');
+  m.className = 'amsg usr';
+  m.textContent = msg;
+  c.appendChild(m);
+  c.scrollTop = c.scrollHeight;
+}
+
+function addBot(text, containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  const m = document.createElement('div');
+  m.className = 'amsg bot';
+  m.innerHTML = text.replace(/\n/g, '<br>');
+  c.appendChild(m);
+  c.scrollTop = c.scrollHeight;
+}
+
+function showDots(containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  const d = document.createElement('div');
+  d.className = 'amsg bot';
+  d.id = 'dots_' + containerId;
+  d.innerHTML = '<div class="dots"><span>·</span><span>·</span><span>·</span></div>';
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+
+function hideDots(containerId) {
+  const d = document.getElementById('dots_' + containerId);
+  if (d) d.remove();
+}
+
+async function callAPI(msg, sys, hist, containerId, btnId) {
+  const btn = btnId ? document.getElementById(btnId) : null;
+  if (btn) btn.disabled = true;
+  showDots(containerId);
+  hist.push({ role: 'user', content: msg });
+
+  const apiKey = S.get('gemini_key', '');
+  if (!apiKey) {
+    hideDots(containerId);
+    addBot('⚠️ Configura tu API key gratuita. Pulsa ⚙️ arriba a la derecha y sigue los pasos. Es gratis y tarda 1 minuto.', containerId);
+    hist.pop();
+    if (btn) btn.disabled = false;
+    toggleSettings();
+    return;
+  }
+
+  // Build conversation for Gemini
+  const geminiMessages = hist.map(m => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }]
+  }));
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: sys }] },
+          contents: geminiMessages,
+          generationConfig: { maxOutputTokens: 1000, temperature: 0.7 }
+        })
+      }
+    );
+    const data = await res.json();
+    hideDots(containerId);
+    if (data.error) {
+      const msg2 = data.error.message || 'Error desconocido';
+      if (msg2.includes('API_KEY_INVALID') || msg2.includes('API key')) {
+        addBot('❌ API key incorrecta. Pulsa ⚙️ para corregirla.', containerId);
+      } else if (msg2.includes('quota') || msg2.includes('Quota') || msg2.includes('limit: 0')) {
+        addBot('⏳ Límite de la API alcanzado temporalmente. Espera 1 minuto e inténtalo de nuevo. Si persiste, la key puede necesitar unos minutos para activarse tras crearla.', containerId);
+      } else {
+        addBot('Error: ' + msg2, containerId);
+      }
+      hist.pop();
+    } else {
+      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sin respuesta.';
+      hist.push({ role: 'assistant', content: reply });
+      addBot(reply, containerId);
+    }
+  } catch (e) {
+    hideDots(containerId);
+    addBot('Error de conexión. Comprueba que estás online.', containerId);
+    hist.pop();
+  }
+  if (btn) btn.disabled = false;
+}
+
+// ─── AGENT SHORTCUTS ───
+const AGENTS = [
+  { id: 'agenda',    icon: '📅', name: 'Agente Agenda',    desc: 'Organiza tu día y semana',         sys: SYS, prompt: 'Actúa como mi agente de agenda. Analiza mi situación actual (exámenes próximos, trabajo, gym) y planifícame la semana del 4 de mayo en detalle, con bloques de estudio de 19:00-21:00 cuando pueda.' },
+  { id: 'examenes',  icon: '📚', name: 'Agente Exámenes',  desc: 'Coach de estudio personalizado',    sys: SYS, prompt: 'Actúa como mi coach de exámenes. Recuérdame las fechas: PMM el 25 mayo, SGE el 26, PSP el 29. El plan empieza el 4 de mayo. Dame un resumen de qué debería estudiar esta semana y cómo distribuirlo entre 19-21h los días que pueda.' },
+  { id: 'ingles',    icon: '🇬🇧', name: 'Agente Inglés',    desc: 'Conversación y speaking B2→C1',     sys: SYS_ENG, prompt: "Hi! I'm your English agent. Let's start with a quick speaking warm-up. Tell me in English: what are you working on this week? I'll correct you naturally and help you sound more natural." },
+  { id: 'startup',   icon: '🚀', name: 'Agente Startup',   desc: 'Estrategia y primeros clientes',    sys: SYS, prompt: 'Actúa como mi advisor de startup. Tengo una agencia IA para PYMEs que quiero lanzar en junio, después de los exámenes. Ayúdame a definir los 3 primeros pasos concretos que debo dar la primera semana de junio para conseguir el primer cliente.' },
+  { id: 'finanzas',  icon: '💰', name: 'Agente Finanzas',  desc: 'Plan patrimonial desde cero',       sys: SYS, prompt: 'Actúa como mi asesor financiero personal. Estoy empezando desde cero en España, tengo trabajo a tiempo completo y startup en junio. Dame un plan financiero mensual concreto: cuánto ahorrar, dónde ponerlo primero y cómo crecer patrimonio.' },
+  { id: 'habitos',   icon: '💪', name: 'Agente Hábitos',   desc: 'Rutinas de alto rendimiento',       sys: SYS, prompt: 'Actúa como mi coach de hábitos. Analiza mi situación: gym antes del trabajo, exámenes próximos, trabajo a tiempo completo. Dame 3 hábitos concretos que puedo implementar ESTA SEMANA que me den el mayor retorno en energía y rendimiento.' },
+];
+
+let activeAgent = null;
+const agentHistories = {};
+
+function initAgents() {
+  const grid = document.getElementById('agents-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  AGENTS.forEach(ag => {
+    agentHistories[ag.id] = [];
+    const div = document.createElement('div');
+    div.style.cssText = 'background:var(--s2);border:1px solid var(--b0);border-radius:12px;padding:13px;cursor:pointer;transition:all .15s;';
+    div.innerHTML = `<div style="font-size:20px;margin-bottom:6px">${ag.icon}</div><div style="font-size:12px;font-weight:500;margin-bottom:3px">${ag.name}</div><div style="font-size:10px;color:var(--t2)">${ag.desc}</div>`;
+    div.onclick = () => activateAgent(ag);
+    grid.appendChild(div);
+  });
+}
+
+function activateAgent(ag) {
+  activeAgent = ag;
+  const panel = document.getElementById('agent-panel');
+  const title = document.getElementById('agent-title');
+  const msgs  = document.getElementById('agent-msgs');
+  if (!panel || !title || !msgs) return;
+  panel.style.display = 'flex';
+  title.textContent = ag.icon + ' ' + ag.name;
+  msgs.innerHTML = '';
+  // Auto-send the initial prompt
+  addUsr(ag.prompt, 'agent-msgs');
+  callAPI(ag.prompt, ag.sys, agentHistories[ag.id], 'agent-msgs', 'agent-send');
+}
+
+function sendAgent() {
+  if (!activeAgent) return;
+  const inp = document.getElementById('agent-inp');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  addUsr(msg, 'agent-msgs');
+  callAPI(msg, activeAgent.sys, agentHistories[activeAgent.id], 'agent-msgs', 'agent-send');
+}
+
+function closeAgent() {
+  const panel = document.getElementById('agent-panel');
+  if (panel) panel.style.display = 'none';
+  activeAgent = null;
+}
+
+// ─── MAIN SEND ───
+function sendMain() {
+  const inp = document.getElementById('ai-inp');
+  if (!inp) return;
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  addUsr(msg, 'ai-msgs');
+  callAPI(msg, SYS, mainH, 'ai-msgs', 'ai-send');
+}
+
+function sendEng() {
+  const inp = document.getElementById('eng-inp');
+  if (!inp) return;
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  addUsr(msg, 'eng-msgs');
+  callAPI(msg, SYS_ENG, engH, 'eng-msgs', 'eng-send');
+}
+
+function askAI(msg) {
+  goPage('asistente');
+  setTimeout(() => {
+    addUsr(msg, 'ai-msgs');
+    callAPI(msg, SYS, mainH, 'ai-msgs', 'ai-send');
+  }, 150);
+}
+
+function loadNews(topic) {
+  addUsr(topic, 'news-msgs');
+  callAPI(topic, SYS_NEWS, newsH, 'news-msgs', null);
+}
+
+function practiceScenario() {
+  const s = SCENARIOS[scenarioIdx];
+  showEngTab('practica');
+  setTimeout(() => {
+    addUsr('Escenario: ' + s.title, 'eng-msgs');
+    callAPI(s.prompt + ' Start with a natural opening line in English.', SYS_ENG, engH, 'eng-msgs', 'eng-send');
+  }, 200);
+}
+
+function askEngAI(msg) {
+  showEngTab('practica');
+  setTimeout(() => {
+    addUsr(msg, 'eng-msgs');
+    callAPI(msg, SYS_ENG, engH, 'eng-msgs', 'eng-send');
+  }, 200);
+}
+
+// ─── SETTINGS ───
+function toggleSettings() {
+  const modal = document.getElementById('settings-modal');
+  if (!modal) return;
+  const isOpen = modal.style.display === 'flex';
+  modal.style.display = isOpen ? 'none' : 'flex';
+  if (!isOpen) {
+    const inp = document.getElementById('settings-key-input');
+    const existing = S.get('gemini_key', '');
+    if (inp) inp.value = existing ? '••••••••' + existing.slice(-4) : '';
+    const st = document.getElementById('settings-status');
+    if(st) { st.textContent = existing ? '✓ API key configurada' : ''; st.style.color = 'var(--g)'; }
+  }
+}
+
+function saveSettings() {
+  const inp = document.getElementById('settings-key-input');
+  const val = inp.value.trim();
+  if (!val || val.startsWith('••')) {
+    document.getElementById('settings-status').textContent = 'Pega tu API key de Google AI Studio';
+    document.getElementById('settings-status').style.color = 'var(--o)';
+    return;
+  }
+  if (!val.startsWith('AIza')) {
+    document.getElementById('settings-status').textContent = 'La key de Gemini empieza por "AIza..."';
+    document.getElementById('settings-status').style.color = 'var(--o)';
+    return;
+  }
+  S.set('gemini_key', val);
+  document.getElementById('settings-status').textContent = '✓ Activado — ya puedes usar el asistente';
+  document.getElementById('settings-status').style.color = 'var(--g)';
+  setTimeout(() => toggleSettings(), 1400);
+}
+
+// Show settings on first load if no key
+function checkAPIKey() {
+  const key = S.get('gemini_key', '');
+  if (!key) {
+    setTimeout(() => {
+      const modal = document.getElementById('settings-modal');
+      if (modal) modal.style.display = 'flex';
+    }, 800);
+  }
+}
 
 document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', checkAPIKey);
 </script>
+
+<!-- SETTINGS MODAL -->
+<div id="settings-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:998;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;padding:16px">
+  <div style="background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:24px;width:100%;max-width:420px">
+    <div style="font-family:var(--fd);font-size:22px;margin-bottom:6px">⚙️ Configurar Asistente IA</div>
+    <div style="font-size:12px;color:var(--t1);margin-bottom:16px;line-height:1.7">
+      El asistente usa <b style="color:var(--p)">Google Gemini</b> — completamente gratis.<br>
+      Hasta <b style="color:var(--g)">1.500 peticiones al día</b> sin pagar nada.
+    </div>
+
+    <div style="background:var(--s2);border-radius:10px;padding:14px;margin-bottom:14px;font-size:12px;line-height:1.9;color:var(--t1)">
+      <b style="color:var(--p)">Cómo obtener tu API key gratis:</b><br>
+      1. Ve a <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--g)">aistudio.google.com/app/apikey</a><br>
+      2. Haz click en <b>"Create API key"</b><br>
+      3. Selecciona o crea un proyecto<br>
+      4. Copia la key y pégala abajo<br>
+      <span style="color:var(--g);font-size:11px">✓ Gratis · Sin tarjeta · 1 minuto</span>
+    </div>
+
+    <input id="settings-key-input" class="finput" type="password"
+      placeholder="AIzaSy..." style="margin-bottom:10px;font-family:var(--fm);font-size:13px;letter-spacing:.05em">
+
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <button onclick="saveSettings()" style="flex:1;padding:11px;background:var(--p);border:none;border-radius:9px;color:#09090f;font-weight:600;font-family:var(--fu);font-size:13px;cursor:pointer">Guardar y activar</button>
+      <button onclick="toggleSettings()" style="padding:11px 16px;background:transparent;border:1px solid var(--b1);border-radius:9px;color:var(--t1);font-family:var(--fu);font-size:13px;cursor:pointer">Cerrar</button>
+    </div>
+    <div id="settings-status" style="font-size:12px;text-align:center;min-height:18px"></div>
+  </div>
+</div>
 
 <!-- GYM MODAL -->
 <div class="gym-modal" id="gym-modal">
@@ -1904,6 +2174,34 @@ document.addEventListener('DOMContentLoaded', init);
     <a href="https://luislpzrm-sketch.github.io/luisprep/" target="_blank" style="margin-left:auto;font-size:11px;color:var(--p);text-decoration:none">Abrir completo ↗</a>
   </div>
   <iframe class="gym-frame" id="gym-frame" src="" loading="lazy" allow="storage-access"></iframe>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div id="settings-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:998;background:rgba(0,0,0,0.7);align-items:center;justify-content:center">
+  <div style="background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:24px;width:90%;max-width:400px;margin:auto">
+    <div style="font-family:var(--fd);font-size:20px;margin-bottom:6px">Configuración IA</div>
+    <div style="font-size:12px;color:var(--t1);margin-bottom:16px;line-height:1.6">
+      El asistente usa <b style="color:var(--p)">OpenRouter</b> para conectar con Claude.<br>
+      Es gratis — créate una cuenta en <a href="https://openrouter.ai" target="_blank" style="color:var(--p)">openrouter.ai</a>, genera una API key y pégala aquí.<br><br>
+      <span style="color:var(--g);font-size:11px">✓ La key se guarda solo en tu dispositivo</span>
+    </div>
+    <input id="settings-key-input" class="finput" type="password" placeholder="sk-or-v1-..." style="margin-bottom:10px;font-family:var(--fm);font-size:13px">
+    <div style="display:flex;gap:8px">
+      <button onclick="saveSettings()" style="flex:1;padding:10px;background:var(--p);border:none;border-radius:9px;color:#09090f;font-weight:600;font-family:var(--fu);font-size:13px;cursor:pointer">Guardar</button>
+      <button onclick="toggleSettings()" style="padding:10px 16px;background:transparent;border:1px solid var(--b1);border-radius:9px;color:var(--t1);font-family:var(--fu);font-size:13px;cursor:pointer">Cancelar</button>
+    </div>
+    <div id="settings-status" style="margin-top:10px;font-size:12px;text-align:center"></div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--b0)">
+      <div style="font-size:11px;color:var(--t2);margin-bottom:8px">Pasos para obtener tu API key gratis:</div>
+      <div style="font-size:11px;color:var(--t1);line-height:1.8">
+        1. Ve a <a href="https://openrouter.ai/keys" target="_blank" style="color:var(--p)">openrouter.ai/keys</a><br>
+        2. Crea una cuenta gratuita<br>
+        3. Crea una nueva key<br>
+        4. Pégala arriba y guarda<br>
+        <span style="color:var(--g)">✓ Plan gratuito: suficiente para uso diario</span>
+      </div>
+    </div>
+  </div>
 </div>
 </body>
 </html>
